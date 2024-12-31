@@ -1,5 +1,5 @@
 from app.core.dependencies import get_meeting_service
-from app.errors import NotFoundError, ValidationError
+from app.exceptions import NotFoundError, ValidationError
 from app.schemas import meeting_schemas
 from app.services.meeting_service import MeetingService
 from fastapi import APIRouter, Depends, Request

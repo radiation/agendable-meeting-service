@@ -2,7 +2,7 @@ from datetime import datetime
 
 from app.db.models import MeetingTask, Task
 from app.db.repositories.task_repo import TaskRepository
-from app.errors import NotFoundError
+from app.exceptions import NotFoundError
 from app.schemas.task_schemas import TaskCreate, TaskRetrieve, TaskUpdate
 from app.services.base_service import BaseService
 

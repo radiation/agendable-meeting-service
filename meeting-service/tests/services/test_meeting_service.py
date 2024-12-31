@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from app.db.models import Meeting
-from app.errors import NotFoundError
+from app.exceptions import NotFoundError
 from app.schemas.meeting_schemas import MeetingCreate, MeetingUpdate
 
 

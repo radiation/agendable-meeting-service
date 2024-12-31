@@ -2,6 +2,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 
+# Custom Exceptions
 class NotFoundError(Exception):
     """Exception raised for missing resources."""
 
@@ -23,6 +24,7 @@ class ForbiddenError(Exception):
         self.detail = detail
 
 
+# Exception Handlers
 async def forbidden_exception_handler(request: Request, exc: ForbiddenError):
     return JSONResponse(
         status_code=403,

@@ -3,7 +3,7 @@ from datetime import datetime
 from app.db.models import Meeting, MeetingRecurrence
 from app.db.repositories.meeting_attendee_repo import MeetingAttendeeRepository
 from app.db.repositories.meeting_repo import MeetingRepository
-from app.errors import NotFoundError, ValidationError
+from app.exceptions import NotFoundError, ValidationError
 from app.schemas.meeting_schemas import MeetingCreate, MeetingRetrieve, MeetingUpdate
 from app.services.base_service import BaseService
 from dateutil.rrule import rrulestr

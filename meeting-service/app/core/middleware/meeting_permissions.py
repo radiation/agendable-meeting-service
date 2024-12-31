@@ -1,7 +1,7 @@
 import re
 
 from app.db import get_db
-from app.errors import ForbiddenError, ValidationError
+from app.exceptions import ForbiddenError, ValidationError
 from app.services.meeting_attendee_service import get_meeting_attendee_service
 from app.utils.auth import get_user_metadata
 from fastapi import Request

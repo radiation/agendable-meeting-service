@@ -1,6 +1,6 @@
 import pytest
 from app.db.models import Task
-from app.errors import NotFoundError
+from app.exceptions import NotFoundError
 from app.schemas.task_schemas import TaskCreate, TaskUpdate
 
 

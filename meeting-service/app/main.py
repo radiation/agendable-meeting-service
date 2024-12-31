@@ -7,7 +7,7 @@ from app.api.routes import (
     meeting_task_routes,
     task_routes,
 )
-from app.errors import (
+from app.exceptions import (
     NotFoundError,
     ValidationError,
     generic_exception_handler,

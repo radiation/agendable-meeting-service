@@ -1,5 +1,5 @@
 from app.core.dependencies import get_meeting_recurrence_service
-from app.errors import NotFoundError
+from app.exceptions import NotFoundError
 from app.schemas import meeting_recurrence_schemas, meeting_schemas
 from app.services.meeting_recurrence_service import MeetingRecurrenceService
 from fastapi import APIRouter, Depends

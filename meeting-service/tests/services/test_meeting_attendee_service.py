@@ -1,6 +1,6 @@
 import pytest
 from app.db.models import MeetingAttendee
-from app.errors import NotFoundError
+from app.exceptions import NotFoundError
 from app.schemas.meeting_attendee_schemas import (
     MeetingAttendeeCreate,
     MeetingAttendeeUpdate,

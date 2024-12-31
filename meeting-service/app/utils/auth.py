@@ -1,4 +1,4 @@
-from app.errors import ForbiddenError
+from app.exceptions import ForbiddenError
 from fastapi import Request
 
 

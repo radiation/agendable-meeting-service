@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar
 
 from app.db.repositories.base_repo import BaseRepository
-from app.errors import NotFoundError
+from app.exceptions import NotFoundError
 from pydantic import BaseModel
 
 ModelType = TypeVar("ModelType")
