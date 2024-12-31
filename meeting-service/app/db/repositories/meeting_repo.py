@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from app.models import Meeting
-from app.repositories.base import BaseRepository
+from app.db.models import Meeting
+from app.db.repositories.base_repo import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload

@@ -1,11 +1,11 @@
 import os
 
-from app.api.routers import (
-    meeting_attendee_router,
-    meeting_recurrence_router,
-    meeting_router,
-    meeting_task_router,
-    task_router,
+from app.api.routes import (
+    meeting_attendee_routes,
+    meeting_recurrence_routes,
+    meeting_routes,
+    meeting_task_routes,
+    task_routes,
 )
 from app.errors import (
     NotFoundError,
@@ -33,18 +33,18 @@ app.add_exception_handler(ValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
 # Include routers that might use the database internally
-app.include_router(meeting_router.router, prefix="/meetings", tags=["meetings"])
-app.include_router(task_router.router, prefix="/tasks", tags=["tasks"])
+app.include_router(meeting_routes.router, prefix="/meetings", tags=["meetings"])
+app.include_router(task_routes.router, prefix="/tasks", tags=["tasks"])
 app.include_router(
-    meeting_task_router.router, prefix="/meeting_tasks", tags=["meeting_tasks"]
+    meeting_task_routes.router, prefix="/meeting_tasks", tags=["meeting_tasks"]
 )
 app.include_router(
-    meeting_attendee_router.router,
+    meeting_attendee_routes.router,
     prefix="/meeting_attendees",
     tags=["meeting_attendees"],
 )
 app.include_router(
-    meeting_recurrence_router.router,
+    meeting_recurrence_routes.router,
     prefix="/meeting_recurrences",
     tags=["meeting_recurrences"],
 )

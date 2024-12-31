@@ -1,6 +1,6 @@
 import pytest
-from app.models import Task
-from app.repositories.task_repository import TaskRepository
+from app.db.models import Task
+from app.db.repositories.task_repo import TaskRepository
 
 
 @pytest.mark.asyncio

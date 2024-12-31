@@ -1,6 +1,6 @@
 import pytest
-from app.models import MeetingTask, Task
-from app.repositories.meeting_task_repository import MeetingTaskRepository
+from app.db.models import MeetingTask, Task
+from app.db.repositories.meeting_task_repo import MeetingTaskRepository
 
 
 @pytest.mark.asyncio

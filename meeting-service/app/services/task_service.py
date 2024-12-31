@@ -1,15 +1,15 @@
 from datetime import datetime
 
+from app.db.models import MeetingTask, Task
+from app.db.repositories.task_repo import TaskRepository
 from app.errors import NotFoundError
-from app.models import MeetingTask, Task
-from app.repositories.task_repository import TaskRepository
 from app.schemas.task_schemas import TaskCreate, TaskRetrieve, TaskUpdate
-from app.services.base import BaseService
+from app.services.base_service import BaseService
 
 
 class TaskService(BaseService[Task, TaskCreate, TaskUpdate]):
-    def __init__(self, repository: TaskRepository):
-        super().__init__(repository)
+    def __init__(self, repo: TaskRepository):
+        super().__init__(repo)
 
     async def mark_task_complete(self, task_id: int) -> TaskRetrieve:
         task = await self.task_repo.mark_task_complete(task_id)

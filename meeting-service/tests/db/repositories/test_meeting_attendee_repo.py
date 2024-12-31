@@ -1,6 +1,6 @@
 import pytest
-from app.models import MeetingAttendee
-from app.repositories.meeting_attendee_repository import MeetingAttendeeRepository
+from app.db.models import MeetingAttendee
+from app.db.repositories.meeting_attendee_repo import MeetingAttendeeRepository
 
 
 @pytest.mark.asyncio

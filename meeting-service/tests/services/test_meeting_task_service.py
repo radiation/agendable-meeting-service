@@ -1,5 +1,5 @@
 import pytest
-from app.models import MeetingTask, Task
+from app.db.models import MeetingTask, Task
 from app.schemas.meeting_task_schemas import MeetingTaskCreate, MeetingTaskUpdate
 
 

@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
 import pytest
-from app.models import Meeting, MeetingAttendee, MeetingRecurrence
-from app.repositories.meeting_repository import MeetingRepository
+from app.db.models import Meeting, MeetingAttendee, MeetingRecurrence
+from app.db.repositories.meeting_repo import MeetingRepository
 
 
 @pytest.mark.asyncio
@@ -52,7 +52,7 @@ async def test_get_meeting_by_user(db_session):
     db_session.add(meeting)
     await db_session.commit()
 
-    # Use the repository's get_by_field method
+    # Use the repo's get_by_field method
     retrieved_meetings: list[Meeting] = await repo.get_by_field("title", "Test Meeting")
 
     # Assertions

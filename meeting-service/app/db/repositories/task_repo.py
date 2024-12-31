@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from app.models import Task
-from app.repositories.base import BaseRepository
+from app.db.models import Task
+from app.db.repositories.base_repo import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
 

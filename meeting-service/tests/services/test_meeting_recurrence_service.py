@@ -1,6 +1,6 @@
 import pytest
-from app.models import MeetingRecurrence
-from app.repositories.meeting_recurrence_repository import MeetingRecurrenceRepository
+from app.db.models import MeetingRecurrence
+from app.db.repositories.meeting_recurrence_repo import MeetingRecurrenceRepository
 from app.schemas.meeting_recurrence_schemas import (
     MeetingRecurrenceCreate,
     MeetingRecurrenceUpdate,
