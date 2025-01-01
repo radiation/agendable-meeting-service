@@ -22,7 +22,7 @@ load_dotenv()
 app = FastAPI()
 
 # Access the secret key
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key")
 
 if not SECRET_KEY:
     raise ValueError("SECRET_KEY is not set in the environment variables!")
