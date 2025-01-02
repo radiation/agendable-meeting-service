@@ -18,7 +18,7 @@ async def extract_meeting_id(path: str) -> int:
 
 async def meeting_permission_middleware(request: Request, call_next):
     """Middleware to enforce meeting-specific permissions."""
-    if request.url.path.startswith("/meetings/") and request.method != "POST":
+    if request.method != "POST":
         # Extract user metadata
         user_metadata = get_user_metadata(request)
         user_id = user_metadata.get("user_id")
