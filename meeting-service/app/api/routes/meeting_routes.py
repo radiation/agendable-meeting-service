@@ -130,3 +130,11 @@ async def create_recurring_meetings(
     return await service.create_recurring_meetings(
         recurrence_id, meeting_data.base_meeting, meeting_data.dates
     )
+
+
+@router.get("/by_user/{user_id}", response_model=list[meeting_schemas.MeetingRetrieve])
+async def get_meetings_by_user(
+    user_id: int,
+    service: MeetingService = Depends(get_meeting_service),
+) -> list[meeting_schemas.MeetingRetrieve]:
+    return await service.get_meetings_by_user_id(user_id)

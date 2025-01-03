@@ -52,6 +52,8 @@ class BaseRepository(Generic[ModelType]):
         if hasattr(self.model, "recurrence"):
             stmt = stmt.options(joinedload(self.model.recurrence))
 
+        print(f"\nstmt: \n{stmt}\n")
+
         result = await self.db.execute(stmt)
         return result.unique().scalars().all()
 

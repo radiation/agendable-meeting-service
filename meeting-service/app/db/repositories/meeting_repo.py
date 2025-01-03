@@ -28,6 +28,24 @@ class MeetingRepository(BaseRepository[Meeting]):
         result = await self.db.execute(stmt)
         return result.scalars().all()
 
+    async def get_meetings_by_user_id(
+        self, user_id: int, skip: int = 0, limit: int = 10
+    ) -> list[Meeting]:
+        stmt = (
+            select(Meeting)
+            .join(Meeting.attendees)
+            .options(
+                joinedload(Meeting.recurrence),
+                joinedload(Meeting.attendees),
+            )
+            .filter(Meeting.attendees.any(user_id=user_id))
+            .order_by(Meeting.start_date)
+            .offset(skip)
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalars().unique().all()
+
     async def get_by_id_with_recurrence(self, id: int) -> Meeting:
         stmt = (
             select(self.model)

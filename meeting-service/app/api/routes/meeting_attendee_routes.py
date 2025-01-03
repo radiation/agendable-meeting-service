@@ -1,9 +1,9 @@
 from typing import List
 
 from app.core.dependencies import get_meeting_attendee_service
-from app.schemas import meeting_attendee_schemas, meeting_schemas
+from app.schemas import meeting_attendee_schemas
 from app.services.meeting_attendee_service import MeetingAttendeeService
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends
 
 router = APIRouter()
 
@@ -65,15 +65,3 @@ async def get_attendees_by_meeting(
     service: MeetingAttendeeService = Depends(get_meeting_attendee_service),
 ) -> List[meeting_attendee_schemas.MeetingAttendeeRetrieve]:
     return await service.get_by_field(field_name="meeting_id", value=meeting_id)
-
-
-@router.get(
-    "/user_meetings/{user_id}", response_model=List[meeting_schemas.MeetingRetrieve]
-)
-async def get_meetings_by_user(
-    user_id: int,
-    authorization: str = Header(None),
-    service: MeetingAttendeeService = Depends(get_meeting_attendee_service),
-) -> List[meeting_schemas.MeetingRetrieve]:
-    print(f"Authorization header received: {authorization}")
-    return await service.get_by_field(field_name="user_id", value=user_id)

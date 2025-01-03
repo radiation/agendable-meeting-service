@@ -31,6 +31,12 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
         meeting = await self.repo.create_with_recurrence(meeting_data.model_dump())
         return MeetingRetrieve.model_validate(meeting)
 
+    async def get_meetings_by_user_id(
+        self, user_id: int, skip: int = 0, limit: int = 10
+    ) -> list[MeetingRetrieve]:
+        meetings = await self.repo.get_meetings_by_user_id(user_id, skip, limit)
+        return [MeetingRetrieve.model_validate(meeting) for meeting in meetings]
+
     async def complete_meeting(self, meeting_id: int) -> MeetingRetrieve:
         meeting = await self.repo.get_by_id_with_recurrence(meeting_id)
         if not meeting:
