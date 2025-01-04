@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from app.core.logging_config import logger
 from app.db.models import Meeting
 from app.db.repositories.base_repo import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +15,9 @@ class MeetingRepository(BaseRepository[Meeting]):
     async def get_meetings_with_recurrence(
         self, recurrence_id: int, after_date: datetime, skip: int = 0, limit: int = 10
     ) -> list[Meeting]:
+        logger.debug(
+            f"Fetching meetings with recurrence ID {recurrence_id} after {after_date}"
+        )
         stmt = (
             select(self.model)
             .options(joinedload(Meeting.recurrence))
@@ -26,11 +30,18 @@ class MeetingRepository(BaseRepository[Meeting]):
             .limit(limit)
         )
         result = await self.db.execute(stmt)
-        return result.scalars().all()
+        meetings = result.scalars().all()
+        logger.debug(
+            f"Retrieved {len(meetings)} meetings with recurrence ID {recurrence_id}"
+        )
+        return meetings
 
     async def get_meetings_by_user_id(
         self, user_id: int, skip: int = 0, limit: int = 10
     ) -> list[Meeting]:
+        logger.debug(
+            f"Fetching meetings for user ID: {user_id} with skip={skip}, limit={limit}"
+        )
         stmt = (
             select(Meeting)
             .join(Meeting.attendees)
@@ -44,18 +55,25 @@ class MeetingRepository(BaseRepository[Meeting]):
             .limit(limit)
         )
         result = await self.db.execute(stmt)
-        return result.scalars().unique().all()
+        meetings = result.scalars().unique().all()
+        logger.debug(f"Retrieved {len(meetings)} meetings for user ID {user_id}")
+        return meetings
 
     async def get_by_id_with_recurrence(self, id: int) -> Meeting:
+        logger.debug(f"Fetching meeting with ID {id}, including recurrence")
         stmt = (
             select(self.model)
             .options(joinedload(self.model.recurrence))
             .filter(self.model.id == id)
         )
         result = await self.db.execute(stmt)
-        return result.scalars().first()
+        meeting = result.scalars().first()
+        if not meeting:
+            logger.warning(f"Meeting with ID {id} not found")
+        return meeting
 
     async def create_with_recurrence(self, meeting_data: dict) -> Meeting:
+        logger.debug(f"Creating meeting with recurrence using data: {meeting_data}")
         new_meeting = self.model(**meeting_data)
         self.db.add(new_meeting)
         await self.db.commit()
@@ -68,19 +86,26 @@ class MeetingRepository(BaseRepository[Meeting]):
             .filter(self.model.id == new_meeting.id)
         )
         result = await self.db.execute(stmt)
-        return result.scalars().first()
+        meeting = result.scalars().first()
+        logger.debug(f"Meeting with ID {new_meeting.id} created successfully")
+        return meeting
 
     async def complete_meeting(self, meeting_id: int) -> Meeting:
+        logger.debug(f"Marking meeting with ID {meeting_id} as complete")
         meeting = await self.get_by_id(meeting_id)
         if meeting:
             meeting.completed = True
             await self.db.commit()
             await self.db.refresh(meeting)
+            logger.debug(f"Meeting with ID {meeting_id} marked as complete")
+        else:
+            logger.warning(f"Meeting with ID {meeting_id} not found")
         return meeting
 
     async def batch_create_with_recurrence(
         self, recurrence_id: int, base_meeting: dict, dates: list[datetime]
     ):
+        logger.debug(f"Batch creating meetings for recurrence ID {recurrence_id}")
         meetings = [
             self.model(
                 recurrence_id=recurrence_id,
@@ -90,10 +115,13 @@ class MeetingRepository(BaseRepository[Meeting]):
                     k: v
                     for k, v in base_meeting.items()
                     if k not in ["start_date", "end_date", "duration"]
-                }
+                },
             )
             for start_date in dates
         ]
         self.db.add_all(meetings)
         await self.db.commit()
+        logger.debug(
+            f"Batch created {len(meetings)} meetings for recurrence ID {recurrence_id}"
+        )
         return meetings

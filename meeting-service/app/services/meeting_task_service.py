@@ -1,9 +1,9 @@
+from app.core.logging_config import logger
 from app.db.models import MeetingTask
 from app.db.repositories.meeting_task_repo import MeetingTaskRepository
 from app.schemas.meeting_task_schemas import MeetingTaskCreate, MeetingTaskUpdate
 from app.schemas.task_schemas import TaskRetrieve
 from app.services.base_service import BaseService
-from loguru import logger
 
 
 class MeetingTaskService(

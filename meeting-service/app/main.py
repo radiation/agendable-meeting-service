@@ -7,6 +7,7 @@ from app.api.routes import (
     meeting_task_routes,
     task_routes,
 )
+from app.core.logging_config import logger
 from app.exceptions import (
     NotFoundError,
     ValidationError,
@@ -18,6 +19,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 
 load_dotenv()
+
+logger.info("Starting application...")
 
 app = FastAPI()
 
