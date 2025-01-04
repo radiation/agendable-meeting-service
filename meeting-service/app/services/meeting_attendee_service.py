@@ -11,4 +11,4 @@ class MeetingAttendeeService(
     BaseService[MeetingAttendee, MeetingAttendeeCreate, MeetingAttendeeUpdate]
 ):
     def __init__(self, repo: MeetingAttendeeRepository):
-        super().__init__(repo)
+        super().__init__(repo, model_name="MeetingAttendee")
