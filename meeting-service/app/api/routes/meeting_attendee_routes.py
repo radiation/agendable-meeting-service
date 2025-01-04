@@ -3,7 +3,11 @@ from typing import List
 from app.core.decorators import log_execution_time
 from app.core.dependencies import get_meeting_attendee_service
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas import meeting_attendee_schemas
+from app.schemas.meeting_attendee_schemas import (
+    MeetingAttendeeCreate,
+    MeetingAttendeeRetrieve,
+    MeetingAttendeeUpdate,
+)
 from app.services.meeting_attendee_service import MeetingAttendeeService
 from fastapi import APIRouter, Depends
 from loguru import logger
@@ -11,12 +15,12 @@ from loguru import logger
 router = APIRouter()
 
 
-@router.post("/", response_model=meeting_attendee_schemas.MeetingAttendeeRetrieve)
+@router.post("/", response_model=MeetingAttendeeRetrieve)
 @log_execution_time
 async def create_meeting_attendee(
-    attendee: meeting_attendee_schemas.MeetingAttendeeCreate,
+    attendee: MeetingAttendeeCreate,
     service: MeetingAttendeeService = Depends(get_meeting_attendee_service),
-) -> meeting_attendee_schemas.MeetingAttendeeRetrieve:
+) -> MeetingAttendeeRetrieve:
     logger.info(f"Creating meeting attendee with data: {attendee.model_dump()}")
     try:
         result = await service.create(attendee)
@@ -30,13 +34,13 @@ async def create_meeting_attendee(
         raise ValidationError(detail="An unexpected error occurred. Please try again.")
 
 
-@router.get("/", response_model=List[meeting_attendee_schemas.MeetingAttendeeRetrieve])
+@router.get("/", response_model=List[MeetingAttendeeRetrieve])
 @log_execution_time
 async def get_meeting_attendees(
     skip: int = 0,
     limit: int = 10,
     service: MeetingAttendeeService = Depends(get_meeting_attendee_service),
-) -> List[meeting_attendee_schemas.MeetingAttendeeRetrieve]:
+) -> List[MeetingAttendeeRetrieve]:
     logger.info(f"Fetching all meeting attendees with skip={skip} and limit={limit}")
     result = await service.get_all(skip, limit)
     logger.info(f"Retrieved {len(result)} meeting attendees.")
@@ -45,13 +49,13 @@ async def get_meeting_attendees(
 
 @router.get(
     "/{meeting_attendee_id}",
-    response_model=meeting_attendee_schemas.MeetingAttendeeRetrieve,
+    response_model=MeetingAttendeeRetrieve,
 )
 @log_execution_time
 async def get_meeting_attendee(
     meeting_attendee_id: int,
     service: MeetingAttendeeService = Depends(get_meeting_attendee_service),
-) -> meeting_attendee_schemas.MeetingAttendeeRetrieve:
+) -> MeetingAttendeeRetrieve:
     logger.info(f"Fetching meeting attendee with ID: {meeting_attendee_id}")
     result = await service.get_by_id(meeting_attendee_id)
     if result is None:
@@ -63,14 +67,14 @@ async def get_meeting_attendee(
 
 @router.put(
     "/{meeting_attendee_id}",
-    response_model=meeting_attendee_schemas.MeetingAttendeeRetrieve,
+    response_model=MeetingAttendeeRetrieve,
 )
 @log_execution_time
 async def update_meeting_attendee(
     meeting_attendee_id: int,
-    attendee: meeting_attendee_schemas.MeetingAttendeeUpdate,
+    attendee: MeetingAttendeeUpdate,
     service: MeetingAttendeeService = Depends(get_meeting_attendee_service),
-) -> meeting_attendee_schemas.MeetingAttendeeRetrieve:
+) -> MeetingAttendeeRetrieve:
     logger.info(
         f"Updating meeting attendee with ID: {meeting_attendee_id} \
             with data: {attendee.model_dump()}"
@@ -98,13 +102,13 @@ async def delete_meeting_attendee(
 
 @router.get(
     "/by_meeting/{meeting_id}",
-    response_model=List[meeting_attendee_schemas.MeetingAttendeeRetrieve],
+    response_model=List[MeetingAttendeeRetrieve],
 )
 @log_execution_time
 async def get_attendees_by_meeting(
     meeting_id: int,
     service: MeetingAttendeeService = Depends(get_meeting_attendee_service),
-) -> List[meeting_attendee_schemas.MeetingAttendeeRetrieve]:
+) -> List[MeetingAttendeeRetrieve]:
     logger.info(f"Fetching all meeting attendees for meeting with ID: {meeting_id}")
     result = await service.get_by_field(field_name="meeting_id", value=meeting_id)
     logger.info(
