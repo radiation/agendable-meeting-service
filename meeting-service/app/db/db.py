@@ -12,7 +12,7 @@ DATABASE_URL = os.getenv(
 )
 
 # Setup async engine and sessionmaker
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

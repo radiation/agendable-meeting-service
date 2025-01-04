@@ -19,3 +19,4 @@ async-asgi-testclient
 python-dateutil
 redis
 httpx
+loguru
