@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from app.schemas.meeting_recurrence_schemas import MeetingRecurrenceRetrieve
 from pydantic import BaseModel, ConfigDict
@@ -18,7 +18,7 @@ class MeetingBase(BaseModel):
 class MeetingCreate(MeetingBase):
     start_date: datetime
     end_date: datetime
-    duration: int
+    duration: Optional[int] = None
     recurrence_id: Optional[int] = None
 
 
@@ -39,4 +39,4 @@ class MeetingRetrieve(MeetingBase):
 
 class MeetingCreateBatch(BaseModel):
     base_meeting: MeetingCreate
-    dates: List[datetime]
+    dates: list[datetime]
