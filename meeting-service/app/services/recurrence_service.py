@@ -1,21 +1,16 @@
 from datetime import datetime
 
 from app.core.logging_config import logger
-from app.db.models import MeetingRecurrence
-from app.db.repositories.meeting_recurrence_repo import MeetingRecurrenceRepository
-from app.schemas.meeting_recurrence_schemas import (
-    MeetingRecurrenceCreate,
-    MeetingRecurrenceUpdate,
-)
+from app.db.models import Recurrence
+from app.db.repositories.recurrence_repo import RecurrenceRepository
+from app.schemas.recurrence_schemas import RecurrenceCreate, RecurrenceUpdate
 from app.services.base_service import BaseService
 from dateutil.rrule import rrulestr
 
 
-class MeetingRecurrenceService(
-    BaseService[MeetingRecurrence, MeetingRecurrenceCreate, MeetingRecurrenceUpdate]
-):
-    def __init__(self, repo: MeetingRecurrenceRepository):
-        super().__init__(repo, model_name="MeetingRecurrence")
+class RecurrenceService(BaseService[Recurrence, RecurrenceCreate, RecurrenceUpdate]):
+    def __init__(self, repo: RecurrenceRepository):
+        super().__init__(repo, model_name="Recurrence")
 
     async def get_next_meeting_date(
         self, recurrence_id: int, after_date: datetime = datetime.now()

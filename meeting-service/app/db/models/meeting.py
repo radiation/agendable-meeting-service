@@ -17,13 +17,13 @@ from . import Base
 class Meeting(Base):
     __tablename__ = "meetings"
     __table_args__ = (
-        Index("ix_meeting_recurrence_id", "recurrence_id"),
+        Index("ix_recurrence_id", "recurrence_id"),
         Index("ix_meeting_start_date", "start_date"),
         Index("ix_meeting_completed", "completed"),
     )
 
     id = Column(Integer, primary_key=True)
-    recurrence_id = Column(Integer, ForeignKey("meeting_recurrences.id"), nullable=True)
+    recurrence_id = Column(Integer, ForeignKey("recurrences.id"), nullable=True)
     title = Column(String(100), default="")
     start_date = Column(DateTime(timezone=True))
     end_date = Column(DateTime(timezone=True))
@@ -36,9 +36,7 @@ class Meeting(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    recurrence = relationship(
-        "MeetingRecurrence", back_populates="meetings", lazy="select"
-    )
+    recurrence = relationship("Recurrence", back_populates="meetings", lazy="select")
     attendees = relationship("Attendee", back_populates="meeting", lazy="joined")
     tasks = relationship(
         "MeetingTask", back_populates="meeting", cascade="all, delete-orphan"

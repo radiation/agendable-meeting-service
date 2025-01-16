@@ -4,13 +4,13 @@ from dateutil.rrule import rrulestr
 from pydantic import BaseModel, field_validator
 
 
-class MeetingRecurrenceBase(BaseModel):
+class RecurrenceBase(BaseModel):
     model_config = {"from_attributes": True}
     rrule: str
     title: str = ""
 
 
-class MeetingRecurrenceCreate(MeetingRecurrenceBase):
+class RecurrenceCreate(RecurrenceBase):
     @field_validator("rrule")
     def validate_rrule(cls, value):
         try:
@@ -21,11 +21,11 @@ class MeetingRecurrenceCreate(MeetingRecurrenceBase):
         return value
 
 
-class MeetingRecurrenceUpdate(BaseModel):
+class RecurrenceUpdate(BaseModel):
     model_config = {"from_attributes": True}
     rrule: str | None = None
     title: str | None = None
 
 
-class MeetingRecurrenceRetrieve(MeetingRecurrenceBase):
+class RecurrenceRetrieve(RecurrenceBase):
     id: int

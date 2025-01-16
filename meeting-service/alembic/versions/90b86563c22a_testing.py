@@ -33,14 +33,12 @@ def upgrade() -> None:
     )
     op.create_index("ix_attendee_user_id", "attendees", ["user_id"], unique=False)
     op.create_index(
-        "ix_meeting_recurrence_created_at",
-        "meeting_recurrences",
+        "ix_recurrence_created_at",
+        "recurrences",
         ["created_at"],
         unique=False,
     )
-    op.create_index(
-        "ix_meeting_recurrence_rrule", "meeting_recurrences", ["rrule"], unique=False
-    )
+    op.create_index("ix_recurrence_rrule", "recurrences", ["rrule"], unique=False)
     op.create_index(
         "ix_meeting_task_meeting_id", "meeting_tasks", ["meeting_id"], unique=False
     )
@@ -48,9 +46,7 @@ def upgrade() -> None:
         "ix_meeting_task_task_id", "meeting_tasks", ["task_id"], unique=False
     )
     op.create_index("ix_meeting_completed", "meetings", ["completed"], unique=False)
-    op.create_index(
-        "ix_meeting_recurrence_id", "meetings", ["recurrence_id"], unique=False
-    )
+    op.create_index("ix_recurrence_id", "meetings", ["recurrence_id"], unique=False)
     op.create_index("ix_meeting_start_date", "meetings", ["start_date"], unique=False)
     op.create_index("ix_task_assignee_id", "tasks", ["assignee_id"], unique=False)
     op.create_index("ix_task_completed", "tasks", ["completed"], unique=False)
@@ -64,12 +60,12 @@ def downgrade() -> None:
     op.drop_index("ix_task_completed", table_name="tasks")
     op.drop_index("ix_task_assignee_id", table_name="tasks")
     op.drop_index("ix_meeting_start_date", table_name="meetings")
-    op.drop_index("ix_meeting_recurrence_id", table_name="meetings")
+    op.drop_index("ix_recurrence_id", table_name="meetings")
     op.drop_index("ix_meeting_completed", table_name="meetings")
     op.drop_index("ix_meeting_task_task_id", table_name="meeting_tasks")
     op.drop_index("ix_meeting_task_meeting_id", table_name="meeting_tasks")
-    op.drop_index("ix_meeting_recurrence_rrule", table_name="meeting_recurrences")
-    op.drop_index("ix_meeting_recurrence_created_at", table_name="meeting_recurrences")
+    op.drop_index("ix_recurrence_rrule", table_name="recurrences")
+    op.drop_index("ix_recurrence_created_at", table_name="recurrences")
     op.drop_index("ix_attendee_user_id", table_name="attendees")
     op.drop_index("ix_attendee_meeting_user", table_name="attendees")
     op.drop_index("ix_attendee_meeting_id", table_name="attendees")

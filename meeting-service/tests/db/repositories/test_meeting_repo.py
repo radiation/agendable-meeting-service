@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
-from app.db.models import Attendee, Meeting, MeetingRecurrence
+from app.db.models import Attendee, Meeting, Recurrence
 from app.db.repositories.meeting_repo import MeetingRepository
 
 
@@ -103,9 +103,7 @@ async def test_delete_meeting(db_session):
 @pytest.mark.asyncio
 async def test_relationships(db_session):
     # Add a recurrence
-    recurrence = MeetingRecurrence(
-        title="Weekly Recurrence", rrule="FREQ=WEEKLY;INTERVAL=1"
-    )
+    recurrence = Recurrence(title="Weekly Recurrence", rrule="FREQ=WEEKLY;INTERVAL=1")
     db_session.add(recurrence)
     await db_session.commit()
 

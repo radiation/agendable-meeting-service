@@ -15,11 +15,11 @@ FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0
 """
 
 
-class MeetingRecurrence(Base):
-    __tablename__ = "meeting_recurrences"
+class Recurrence(Base):
+    __tablename__ = "recurrences"
     __table_args__ = (
-        Index("ix_meeting_recurrence_rrule", "rrule"),
-        Index("ix_meeting_recurrence_created_at", "created_at"),
+        Index("ix_recurrence_rrule", "rrule"),
+        Index("ix_recurrence_created_at", "created_at"),
     )
 
     id = Column(Integer, primary_key=True)
@@ -31,4 +31,4 @@ class MeetingRecurrence(Base):
     meetings = relationship("Meeting", back_populates="recurrence")
 
     def __repr__(self):
-        return f"<MeetingRecurrence(title={self.title}, rrule={self.rrule})>"
+        return f"<Recurrence(title={self.title}, rrule={self.rrule})>"

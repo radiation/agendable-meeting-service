@@ -69,17 +69,17 @@ async def test_meeting_router_lifecycle(test_client):
 @pytest.mark.asyncio
 async def test_create_meeting_with_recurrence_id(test_client):
     # Create a meeting recurrence
-    meeting_recurrence_data = {
+    recurrence_data = {
         "title": "Annual Meeting",
         "rrule": "FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0",
     }
     response = await test_client.post(
-        "/meeting_recurrences/",
-        json=meeting_recurrence_data,
+        "/recurrences/",
+        json=recurrence_data,
     )
-    meeting_recurrence = response.json()
-    assert meeting_recurrence["title"] == "Annual Meeting"
-    meeting_recurrence_id = meeting_recurrence["id"]
+    recurrence = response.json()
+    assert recurrence["title"] == "Annual Meeting"
+    recurrence_id = recurrence["id"]
 
     # Create a meeting with the recurrence id
     meeting_data = {
@@ -91,7 +91,7 @@ async def test_create_meeting_with_recurrence_id(test_client):
         "notes": "Monthly review meeting",
         "num_reschedules": 0,
         "reminder_sent": False,
-        "recurrence_id": meeting_recurrence_id,
+        "recurrence_id": recurrence_id,
     }
 
     response = await test_client.post(
@@ -140,19 +140,19 @@ async def test_get_next_meeting(test_client):
     meeting_id = meeting["id"]
 
     # Add a recurrence to the meeting
-    meeting_recurrence_data = {
+    recurrence_data = {
         "title": "Annual Meeting",
         "rrule": "FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0",
     }
     response = await test_client.post(
-        "/meeting_recurrences/",
-        json=meeting_recurrence_data,
+        "/recurrences/",
+        json=recurrence_data,
     )
-    meeting_recurrence = response.json()
-    assert meeting_recurrence["title"] == "Annual Meeting"
-    meeting_recurrence_id = meeting_recurrence["id"]
+    recurrence = response.json()
+    assert recurrence["title"] == "Annual Meeting"
+    recurrence_id = recurrence["id"]
     response = await test_client.post(
-        f"/meetings/{meeting_id}/add_recurrence/{meeting_recurrence_id}",
+        f"/meetings/{meeting_id}/add_recurrence/{recurrence_id}",
     )
     meeting = response.json()
 

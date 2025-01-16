@@ -1,31 +1,29 @@
 from app.core.decorators import log_execution_time
-from app.core.dependencies import get_meeting_recurrence_service
+from app.core.dependencies import get_recurrence_service
 from app.core.logging_config import logger
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas.meeting_recurrence_schemas import (
-    MeetingRecurrenceCreate,
-    MeetingRecurrenceRetrieve,
-    MeetingRecurrenceUpdate,
-)
 from app.schemas.meeting_schemas import MeetingRetrieve
-from app.services.meeting_recurrence_service import MeetingRecurrenceService
+from app.schemas.recurrence_schemas import (
+    RecurrenceCreate,
+    RecurrenceRetrieve,
+    RecurrenceUpdate,
+)
+from app.services.recurrence_service import RecurrenceService
 from fastapi import APIRouter, Depends
 
 router = APIRouter()
 
 
 # Create a new meeting recurrence
-@router.post("/", response_model=MeetingRecurrenceRetrieve)
+@router.post("/", response_model=RecurrenceRetrieve)
 @log_execution_time
-async def create_meeting_recurrence(
-    meeting_recurrence: MeetingRecurrenceCreate,
-    service: MeetingRecurrenceService = Depends(get_meeting_recurrence_service),
-) -> MeetingRecurrenceRetrieve:
-    logger.info(
-        f"Creating meeting recurrence with data: {meeting_recurrence.model_dump()}"
-    )
+async def create_recurrence(
+    recurrence: RecurrenceCreate,
+    service: RecurrenceService = Depends(get_recurrence_service),
+) -> RecurrenceRetrieve:
+    logger.info(f"Creating meeting recurrence with data: {recurrence.model_dump()}")
     try:
-        result = await service.create(meeting_recurrence)
+        result = await service.create(recurrence)
         logger.info(f"Meeting recurrence created successfully with ID: {result.id}")
         return result
     except ValidationError as ve:
@@ -37,13 +35,13 @@ async def create_meeting_recurrence(
 
 
 # List all meeting recurrences
-@router.get("/", response_model=list[MeetingRecurrenceRetrieve])
+@router.get("/", response_model=list[RecurrenceRetrieve])
 @log_execution_time
-async def get_meeting_recurrences(
+async def get_recurrences(
     skip: int = 0,
     limit: int = 10,
-    service: MeetingRecurrenceService = Depends(get_meeting_recurrence_service),
-) -> list[MeetingRecurrenceRetrieve]:
+    service: RecurrenceService = Depends(get_recurrence_service),
+) -> list[RecurrenceRetrieve]:
     logger.info(f"Fetching all meeting recurrences with skip={skip} and limit={limit}")
     result = await service.get_all(skip=skip, limit=limit)
     logger.info(f"Retrieved {len(result)} meeting recurrences.")
@@ -53,13 +51,13 @@ async def get_meeting_recurrences(
 # Get a meeting recurrence by ID
 @router.get(
     "/{recurrence_id}",
-    response_model=MeetingRecurrenceRetrieve,
+    response_model=RecurrenceRetrieve,
 )
 @log_execution_time
-async def get_meeting_recurrence(
+async def get_recurrence(
     recurrence_id: int,
-    service: MeetingRecurrenceService = Depends(get_meeting_recurrence_service),
-) -> MeetingRecurrenceRetrieve:
+    service: RecurrenceService = Depends(get_recurrence_service),
+) -> RecurrenceRetrieve:
     logger.info(f"Fetching meeting recurrence with ID: {recurrence_id}")
     result = await service.get_by_id(recurrence_id)
     if result is None:
@@ -72,19 +70,19 @@ async def get_meeting_recurrence(
 # Update an existing meeting recurrence
 @router.put(
     "/{recurrence_id}",
-    response_model=MeetingRecurrenceRetrieve,
+    response_model=RecurrenceRetrieve,
 )
 @log_execution_time
-async def update_meeting_recurrence(
+async def update_recurrence(
     recurrence_id: int,
-    meeting_recurrence: MeetingRecurrenceUpdate,
-    service: MeetingRecurrenceService = Depends(get_meeting_recurrence_service),
-) -> MeetingRecurrenceRetrieve:
+    recurrence: RecurrenceUpdate,
+    service: RecurrenceService = Depends(get_recurrence_service),
+) -> RecurrenceRetrieve:
     logger.info(
         f"Updating meeting recurrence with ID: {recurrence_id} \
-            with data: {meeting_recurrence.model_dump()}"
+            with data: {recurrence.model_dump()}"
     )
-    result = await service.update(recurrence_id, meeting_recurrence)
+    result = await service.update(recurrence_id, recurrence)
     if result is None:
         logger.warning(f"Meeting recurrence with ID {recurrence_id} not found")
         raise NotFoundError(detail="Meeting recurrence not found")
@@ -95,9 +93,9 @@ async def update_meeting_recurrence(
 # Delete a meeting recurrence
 @router.delete("/{recurrence_id}", status_code=204)
 @log_execution_time
-async def delete_meeting_recurrence(
+async def delete_recurrence(
     recurrence_id: int,
-    service: MeetingRecurrenceService = Depends(get_meeting_recurrence_service),
+    service: RecurrenceService = Depends(get_recurrence_service),
 ) -> None:
     logger.info(f"Deleting meeting recurrence with ID: {recurrence_id}")
     success = await service.delete(recurrence_id)
@@ -111,7 +109,7 @@ async def delete_meeting_recurrence(
 @log_execution_time
 async def next_meeting(
     recurrence_id: int,
-    service: MeetingRecurrenceService = Depends(get_meeting_recurrence_service),
+    service: RecurrenceService = Depends(get_recurrence_service),
 ) -> MeetingRetrieve:
     logger.info(f"Fetching next meeting for recurrence with ID: {recurrence_id}")
     next_meeting_date = await service.get_next_meeting_date(recurrence_id)

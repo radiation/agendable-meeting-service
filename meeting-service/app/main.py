@@ -2,9 +2,9 @@ import os
 
 from app.api.routes import (
     attendee_routes,
-    meeting_recurrence_routes,
     meeting_routes,
     meeting_task_routes,
+    recurrence_routes,
     task_routes,
 )
 from app.core.logging_config import logger
@@ -47,9 +47,9 @@ app.include_router(
     tags=["attendees"],
 )
 app.include_router(
-    meeting_recurrence_routes.router,
-    prefix="/meeting_recurrences",
-    tags=["meeting_recurrences"],
+    recurrence_routes.router,
+    prefix="/recurrences",
+    tags=["recurrences"],
 )
 
 
