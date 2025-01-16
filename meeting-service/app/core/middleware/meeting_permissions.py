@@ -2,7 +2,7 @@ import re
 
 from app.db import get_db
 from app.exceptions import ForbiddenError, ValidationError
-from app.services.meeting_attendee_service import get_meeting_attendee_service
+from app.services.attendee_service import get_attendee_service
 from app.utils.auth import get_user_metadata
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,7 +36,7 @@ async def meeting_permission_middleware(request: Request, call_next):
         # Validate attendee via service layer
         db: AsyncSession = await get_db()
         try:
-            attendee = await get_meeting_attendee_service(db, meeting_id, user_id)
+            attendee = await get_attendee_service(db, meeting_id, user_id)
         except Exception:
             raise ForbiddenError(
                 detail="You are not authorized to access this meeting."

@@ -39,7 +39,7 @@ class Meeting(Base):
     recurrence = relationship(
         "MeetingRecurrence", back_populates="meetings", lazy="select"
     )
-    attendees = relationship("MeetingAttendee", back_populates="meeting", lazy="joined")
+    attendees = relationship("Attendee", back_populates="meeting", lazy="joined")
     tasks = relationship(
         "MeetingTask", back_populates="meeting", cascade="all, delete-orphan"
     )

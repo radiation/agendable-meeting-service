@@ -1,10 +1,10 @@
 from app.db.db import get_db
-from app.db.repositories.meeting_attendee_repo import MeetingAttendeeRepository
+from app.db.repositories.attendee_repo import AttendeeRepository
 from app.db.repositories.meeting_recurrence_repo import MeetingRecurrenceRepository
 from app.db.repositories.meeting_repo import MeetingRepository
 from app.db.repositories.meeting_task_repo import MeetingTaskRepository
 from app.db.repositories.task_repo import TaskRepository
-from app.services.meeting_attendee_service import MeetingAttendeeService
+from app.services.attendee_service import AttendeeService
 from app.services.meeting_recurrence_service import MeetingRecurrenceService
 from app.services.meeting_service import MeetingService
 from app.services.meeting_task_service import MeetingTaskService
@@ -19,21 +19,21 @@ def get_meeting_repo(db: AsyncSession = Depends(get_db)) -> MeetingRepository:
 
 def get_meeting_service(db: AsyncSession = Depends(get_db)) -> MeetingService:
     meeting_repo = MeetingRepository(db)
-    attendee_repo = MeetingAttendeeRepository(db)
+    attendee_repo = AttendeeRepository(db)
     return MeetingService(meeting_repo, attendee_repo)
 
 
-def get_meeting_attendee_repo(
+def get_attendee_repo(
     db: AsyncSession = Depends(get_db),
-) -> MeetingAttendeeRepository:
-    return MeetingAttendeeRepository(db)
+) -> AttendeeRepository:
+    return AttendeeRepository(db)
 
 
-def get_meeting_attendee_service(
+def get_attendee_service(
     db: AsyncSession = Depends(get_db),
-) -> MeetingAttendeeService:
-    attendee_repo = MeetingAttendeeRepository(db)
-    return MeetingAttendeeService(attendee_repo)
+) -> AttendeeService:
+    attendee_repo = AttendeeRepository(db)
+    return AttendeeService(attendee_repo)
 
 
 def get_meeting_recurrence_repo(

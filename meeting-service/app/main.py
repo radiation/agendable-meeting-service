@@ -1,7 +1,7 @@
 import os
 
 from app.api.routes import (
-    meeting_attendee_routes,
+    attendee_routes,
     meeting_recurrence_routes,
     meeting_routes,
     meeting_task_routes,
@@ -42,9 +42,9 @@ app.include_router(
     meeting_task_routes.router, prefix="/meeting_tasks", tags=["meeting_tasks"]
 )
 app.include_router(
-    meeting_attendee_routes.router,
-    prefix="/meeting_attendees",
-    tags=["meeting_attendees"],
+    attendee_routes.router,
+    prefix="/attendees",
+    tags=["attendees"],
 )
 app.include_router(
     meeting_recurrence_routes.router,

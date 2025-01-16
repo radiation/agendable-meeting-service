@@ -1,11 +1,11 @@
 import pytest
-from app.db.models import MeetingAttendee
-from app.db.repositories.meeting_attendee_repo import MeetingAttendeeRepository
+from app.db.models import Attendee
+from app.db.repositories.attendee_repo import AttendeeRepository
 
 
 @pytest.mark.asyncio
-async def test_create_meeting_attendee(db_session):
-    repo = MeetingAttendeeRepository(db_session)
+async def test_create_attendee(db_session):
+    repo = AttendeeRepository(db_session)
 
     new_attendee = {
         "meeting_id": 1,
@@ -19,10 +19,10 @@ async def test_create_meeting_attendee(db_session):
 
 
 @pytest.mark.asyncio
-async def test_get_meeting_attendee_by_id(db_session):
-    repo = MeetingAttendeeRepository(db_session)
+async def test_get_attendee_by_id(db_session):
+    repo = AttendeeRepository(db_session)
 
-    attendee = MeetingAttendee(meeting_id=1, user_id=2, is_scheduler=False)
+    attendee = Attendee(meeting_id=1, user_id=2, is_scheduler=False)
     db_session.add(attendee)
     await db_session.commit()
 
@@ -33,10 +33,10 @@ async def test_get_meeting_attendee_by_id(db_session):
 
 
 @pytest.mark.asyncio
-async def test_update_meeting_attendee(db_session):
-    repo = MeetingAttendeeRepository(db_session)
+async def test_update_attendee(db_session):
+    repo = AttendeeRepository(db_session)
 
-    attendee = MeetingAttendee(meeting_id=1, user_id=3, is_scheduler=False)
+    attendee = Attendee(meeting_id=1, user_id=3, is_scheduler=False)
     db_session.add(attendee)
     await db_session.commit()
 
@@ -46,10 +46,10 @@ async def test_update_meeting_attendee(db_session):
 
 
 @pytest.mark.asyncio
-async def test_delete_meeting_attendee(db_session):
-    repo = MeetingAttendeeRepository(db_session)
+async def test_delete_attendee(db_session):
+    repo = AttendeeRepository(db_session)
 
-    attendee = MeetingAttendee(meeting_id=1, user_id=4, is_scheduler=False)
+    attendee = Attendee(meeting_id=1, user_id=4, is_scheduler=False)
     db_session.add(attendee)
     await db_session.commit()
 

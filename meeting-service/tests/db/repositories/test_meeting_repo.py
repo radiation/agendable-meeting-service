@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
-from app.db.models import Meeting, MeetingAttendee, MeetingRecurrence
+from app.db.models import Attendee, Meeting, MeetingRecurrence
 from app.db.repositories.meeting_repo import MeetingRepository
 
 
@@ -122,8 +122,8 @@ async def test_relationships(db_session):
 
     # Add attendees
     attendees = [
-        MeetingAttendee(meeting_id=meeting.id, user_id=1),
-        MeetingAttendee(meeting_id=meeting.id, user_id=2),
+        Attendee(meeting_id=meeting.id, user_id=1),
+        Attendee(meeting_id=meeting.id, user_id=2),
     ]
     db_session.add_all(attendees)
     await db_session.commit()

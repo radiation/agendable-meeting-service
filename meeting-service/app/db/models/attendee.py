@@ -5,12 +5,12 @@ from sqlalchemy.orm import relationship
 from . import Base
 
 
-class MeetingAttendee(Base):
-    __tablename__ = "meeting_attendees"
+class Attendee(Base):
+    __tablename__ = "attendees"
     __table_args__ = (
-        Index("ix_meeting_attendee_meeting_id", "meeting_id"),
-        Index("ix_meeting_attendee_user_id", "user_id"),
-        Index("ix_meeting_attendee_meeting_user", "meeting_id", "user_id"),
+        Index("ix_attendee_meeting_id", "meeting_id"),
+        Index("ix_attendee_user_id", "user_id"),
+        Index("ix_attendee_meeting_user", "meeting_id", "user_id"),
     )
 
     id = Column(Integer, primary_key=True)

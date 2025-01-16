@@ -1,13 +1,13 @@
 from app.core.logging_config import logger
-from app.db.models import MeetingAttendee
+from app.db.models import Attendee
 from app.db.repositories.base_repo import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 
-class MeetingAttendeeRepository(BaseRepository[MeetingAttendee]):
+class AttendeeRepository(BaseRepository[Attendee]):
     def __init__(self, db: AsyncSession):
-        super().__init__(MeetingAttendee, db)
+        super().__init__(Attendee, db)
 
     async def get_attendees_by_meeting(self, meeting_id: int):
         logger.debug(f"Fetching attendees for meeting ID: {meeting_id}")

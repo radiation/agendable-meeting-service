@@ -2,13 +2,13 @@ import pytest
 from app.api.routes.meeting_routes import get_attendee
 from app.db.db import get_db
 from app.db.models import Base
-from app.db.repositories.meeting_attendee_repo import MeetingAttendeeRepository
+from app.db.repositories.attendee_repo import AttendeeRepository
 from app.db.repositories.meeting_recurrence_repo import MeetingRecurrenceRepository
 from app.db.repositories.meeting_repo import MeetingRepository
 from app.db.repositories.meeting_task_repo import MeetingTaskRepository
 from app.db.repositories.task_repo import TaskRepository
 from app.main import app
-from app.services.meeting_attendee_service import MeetingAttendeeService
+from app.services.attendee_service import AttendeeService
 from app.services.meeting_recurrence_service import MeetingRecurrenceService
 from app.services.meeting_service import MeetingService
 from app.services.meeting_task_service import MeetingTaskService
@@ -77,9 +77,9 @@ async def meeting_service(db_session):
 
 
 @pytest.fixture
-async def meeting_attendee_service(db_session):
-    repo = MeetingAttendeeRepository(db_session)
-    service = MeetingAttendeeService(repo)
+async def attendee_service(db_session):
+    repo = AttendeeRepository(db_session)
+    service = AttendeeService(repo)
     return service
 
 
