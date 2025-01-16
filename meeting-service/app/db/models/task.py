@@ -2,7 +2,7 @@ import sqlalchemy.sql.functions as func
 from sqlalchemy import Boolean, Column, DateTime, Index, Integer, String
 from sqlalchemy.orm import relationship
 
-from . import Base
+from . import Base, meeting_tasks
 
 
 class Task(Base):
@@ -23,6 +23,4 @@ class Task(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    meeting_tasks = relationship(
-        "MeetingTask", back_populates="task", cascade="all, delete-orphan"
-    )
+    meetings = relationship("Meeting", secondary=meeting_tasks, back_populates="tasks")

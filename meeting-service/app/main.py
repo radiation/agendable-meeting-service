@@ -3,7 +3,6 @@ import os
 from app.api.routes import (
     attendee_routes,
     meeting_routes,
-    meeting_task_routes,
     recurrence_routes,
     task_routes,
 )
@@ -38,9 +37,6 @@ app.add_exception_handler(Exception, generic_exception_handler)
 # Include routers that might use the database internally
 app.include_router(meeting_routes.router, prefix="/meetings", tags=["meetings"])
 app.include_router(task_routes.router, prefix="/tasks", tags=["tasks"])
-app.include_router(
-    meeting_task_routes.router, prefix="/meeting_tasks", tags=["meeting_tasks"]
-)
 app.include_router(
     attendee_routes.router,
     prefix="/attendees",

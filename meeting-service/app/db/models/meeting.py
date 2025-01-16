@@ -11,7 +11,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from . import Base
+from . import Base, meeting_tasks
 
 
 class Meeting(Base):
@@ -38,9 +38,7 @@ class Meeting(Base):
     # Relationships
     recurrence = relationship("Recurrence", back_populates="meetings", lazy="select")
     attendees = relationship("Attendee", back_populates="meeting", lazy="joined")
-    tasks = relationship(
-        "MeetingTask", back_populates="meeting", cascade="all, delete-orphan"
-    )
+    tasks = relationship("Task", secondary=meeting_tasks, back_populates="meetings")
 
 
 @event.listens_for(Meeting, "before_insert")
