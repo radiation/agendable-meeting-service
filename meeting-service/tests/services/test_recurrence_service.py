@@ -1,7 +1,7 @@
 import pytest
 from app.db.models import Recurrence
-from app.db.repositories.recurrence_repo import RecurrenceRepository
-from app.schemas.recurrence_schemas import RecurrenceCreate, RecurrenceUpdate
+from app.db.repositories import RecurrenceRepository
+from app.schemas import RecurrenceCreate, RecurrenceUpdate
 
 
 @pytest.mark.asyncio

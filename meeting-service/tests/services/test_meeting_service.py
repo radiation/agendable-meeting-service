@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from app.db.models import Meeting
 from app.exceptions import NotFoundError
-from app.schemas.meeting_schemas import MeetingCreate, MeetingUpdate
+from app.schemas import MeetingCreate, MeetingUpdate
 
 
 @pytest.mark.asyncio

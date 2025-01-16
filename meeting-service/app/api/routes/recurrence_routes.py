@@ -2,13 +2,13 @@ from app.core.decorators import log_execution_time
 from app.core.dependencies import get_recurrence_service
 from app.core.logging_config import logger
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas.meeting_schemas import MeetingRetrieve
-from app.schemas.recurrence_schemas import (
+from app.schemas import (
+    MeetingRetrieve,
     RecurrenceCreate,
     RecurrenceRetrieve,
     RecurrenceUpdate,
 )
-from app.services.recurrence_service import RecurrenceService
+from app.services import RecurrenceService
 from fastapi import APIRouter, Depends
 
 router = APIRouter()

@@ -2,9 +2,9 @@ from datetime import datetime
 
 from app.core.logging_config import logger
 from app.db.models import Recurrence
-from app.db.repositories.recurrence_repo import RecurrenceRepository
-from app.schemas.recurrence_schemas import RecurrenceCreate, RecurrenceUpdate
-from app.services.base_service import BaseService
+from app.db.repositories import RecurrenceRepository
+from app.schemas import RecurrenceCreate, RecurrenceUpdate
+from app.services import BaseService
 from dateutil.rrule import rrulestr
 
 

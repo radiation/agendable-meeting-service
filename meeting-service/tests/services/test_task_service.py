@@ -1,7 +1,7 @@
 import pytest
 from app.db.models import Task
 from app.exceptions import NotFoundError
-from app.schemas.task_schemas import TaskCreate, TaskUpdate
+from app.schemas import TaskCreate, TaskUpdate
 
 
 @pytest.mark.asyncio

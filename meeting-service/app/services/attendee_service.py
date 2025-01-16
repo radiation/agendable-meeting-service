@@ -1,6 +1,6 @@
 from app.db.models import Attendee
-from app.db.repositories.attendee_repo import AttendeeRepository
-from app.schemas.attendee_schemas import AttendeeCreate, AttendeeUpdate
+from app.db.repositories import AttendeeRepository
+from app.schemas import AttendeeCreate, AttendeeUpdate
 from app.services.base_service import BaseService
 
 

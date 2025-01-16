@@ -2,13 +2,13 @@ from app.core.decorators import log_execution_time
 from app.core.dependencies import get_meeting_service
 from app.core.logging_config import logger
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas.meeting_schemas import (
+from app.schemas import (
     MeetingCreate,
     MeetingCreateBatch,
     MeetingRetrieve,
     MeetingUpdate,
 )
-from app.services.meeting_service import MeetingService
+from app.services import MeetingService
 from fastapi import APIRouter, Depends, Request
 
 router = APIRouter()

@@ -1,7 +1,7 @@
 import pytest
 from app.db.models import Attendee
 from app.exceptions import NotFoundError
-from app.schemas.attendee_schemas import AttendeeCreate, AttendeeUpdate
+from app.schemas import AttendeeCreate, AttendeeUpdate
 
 
 @pytest.mark.asyncio

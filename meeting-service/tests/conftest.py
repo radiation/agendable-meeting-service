@@ -2,15 +2,14 @@ import pytest
 from app.api.routes.meeting_routes import get_attendee
 from app.db.db import get_db
 from app.db.models import Base
-from app.db.repositories.attendee_repo import AttendeeRepository
-from app.db.repositories.meeting_repo import MeetingRepository
-from app.db.repositories.recurrence_repo import RecurrenceRepository
-from app.db.repositories.task_repo import TaskRepository
+from app.db.repositories import (
+    AttendeeRepository,
+    MeetingRepository,
+    RecurrenceRepository,
+    TaskRepository,
+)
 from app.main import app
-from app.services.attendee_service import AttendeeService
-from app.services.meeting_service import MeetingService
-from app.services.recurrence_service import RecurrenceService
-from app.services.task_service import TaskService
+from app.services import AttendeeService, MeetingService, RecurrenceService, TaskService
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker

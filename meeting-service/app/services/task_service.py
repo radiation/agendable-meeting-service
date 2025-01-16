@@ -2,10 +2,10 @@ from datetime import datetime
 
 from app.core.logging_config import logger
 from app.db.models import Task
-from app.db.repositories.task_repo import TaskRepository
+from app.db.repositories import TaskRepository
 from app.exceptions import NotFoundError
-from app.schemas.task_schemas import TaskCreate, TaskRetrieve, TaskUpdate
-from app.services.base_service import BaseService
+from app.schemas import TaskCreate, TaskRetrieve, TaskUpdate
+from app.services import BaseService
 from sqlalchemy.exc import NoResultFound
 
 

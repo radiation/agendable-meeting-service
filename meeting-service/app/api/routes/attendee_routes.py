@@ -4,12 +4,8 @@ from app.core.decorators import log_execution_time
 from app.core.dependencies import get_attendee_service
 from app.core.logging_config import logger
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas.attendee_schemas import (
-    AttendeeCreate,
-    AttendeeRetrieve,
-    AttendeeUpdate,
-)
-from app.services.attendee_service import AttendeeService
+from app.schemas import AttendeeCreate, AttendeeRetrieve, AttendeeUpdate
+from app.services import AttendeeService
 from fastapi import APIRouter, Depends
 
 router = APIRouter()

@@ -2,11 +2,10 @@ from datetime import datetime
 
 from app.core.logging_config import logger
 from app.db.models import Meeting, Recurrence
-from app.db.repositories.attendee_repo import AttendeeRepository
-from app.db.repositories.meeting_repo import MeetingRepository
+from app.db.repositories import AttendeeRepository, MeetingRepository
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas.meeting_schemas import MeetingCreate, MeetingRetrieve, MeetingUpdate
-from app.services.base_service import BaseService
+from app.schemas import MeetingCreate, MeetingRetrieve, MeetingUpdate
+from app.services import BaseService
 from dateutil.rrule import rrulestr
 
 

@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar
 
 from app.core.logging_config import logger
-from app.db.repositories.base_repo import BaseRepository
+from app.db.repositories import BaseRepository
 from app.exceptions import NotFoundError
 from pydantic import BaseModel
 

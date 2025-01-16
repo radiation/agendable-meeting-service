@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from app.db.models import Attendee, Meeting, Recurrence
-from app.db.repositories.meeting_repo import MeetingRepository
+from app.db.repositories import MeetingRepository
 
 
 @pytest.mark.asyncio
