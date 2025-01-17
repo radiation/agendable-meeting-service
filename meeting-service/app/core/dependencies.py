@@ -4,8 +4,15 @@ from app.db.repositories import (
     MeetingRepository,
     RecurrenceRepository,
     TaskRepository,
+    UserRepository,
 )
-from app.services import AttendeeService, MeetingService, RecurrenceService, TaskService
+from app.services import (
+    AttendeeService,
+    MeetingService,
+    RecurrenceService,
+    TaskService,
+    UserService,
+)
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -53,3 +60,12 @@ def get_task_repo(db: AsyncSession = Depends(get_db)) -> TaskRepository:
 def get_task_service(db: AsyncSession = Depends(get_db)) -> TaskService:
     task_repo = TaskRepository(db)
     return TaskService(task_repo)
+
+
+def get_user_repo(db: AsyncSession = Depends(get_db)):
+    return UserRepository(db)
+
+
+def get_user_service(db: AsyncSession = Depends(get_db)):
+    user_repo = UserRepository(db)
+    return UserService(user_repo)

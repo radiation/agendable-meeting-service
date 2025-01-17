@@ -4,3 +4,4 @@ from .attendee_repo import AttendeeRepository
 from .meeting_repo import MeetingRepository
 from .recurrence_repo import RecurrenceRepository
 from .task_repo import TaskRepository
+from .user_repo import UserRepository

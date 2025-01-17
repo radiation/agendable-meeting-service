@@ -7,9 +7,16 @@ from app.db.repositories import (
     MeetingRepository,
     RecurrenceRepository,
     TaskRepository,
+    UserRepository,
 )
 from app.main import app
-from app.services import AttendeeService, MeetingService, RecurrenceService, TaskService
+from app.services import (
+    AttendeeService,
+    MeetingService,
+    RecurrenceService,
+    TaskService,
+    UserService,
+)
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -91,4 +98,11 @@ async def recurrence_service(db_session):
 async def task_service(db_session):
     repo = TaskRepository(db_session)
     service = TaskService(repo)
+    return service
+
+
+@pytest.fixture
+async def user_service(db_session):
+    repo = UserRepository(db_session)
+    service = UserService(repo)
     return service
