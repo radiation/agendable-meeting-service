@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.core.decorators import log_execution_time
 from app.core.dependencies import get_user_service
 from app.core.logging_config import logger
@@ -41,7 +43,7 @@ async def get_users(
 @router.get("/{user_id}", response_model=UserRetrieve)
 @log_execution_time
 async def get_user(
-    user_id: int, service: UserService = Depends(get_user_service)
+    user_id: UUID, service: UserService = Depends(get_user_service)
 ) -> UserRetrieve:
     logger.info(f"Fetching user with ID: {user_id}")
     result = await service.get_by_id(user_id)
@@ -55,7 +57,7 @@ async def get_user(
 @router.put("/{user_id}", response_model=UserRetrieve)
 @log_execution_time
 async def update_user(
-    user_id: int,
+    user_id: UUID,
     user: UserUpdate,
     service: UserService = Depends(get_user_service),
 ) -> UserRetrieve:
@@ -70,7 +72,7 @@ async def update_user(
 
 @router.delete("/{user_id}", status_code=204)
 @log_execution_time
-async def delete_user(user_id: int, service: UserService = Depends(get_user_service)):
+async def delete_user(user_id: UUID, service: UserService = Depends(get_user_service)):
     logger.info(f"Deleting user with ID: {user_id}")
     success = await service.delete(user_id)
     if not success:

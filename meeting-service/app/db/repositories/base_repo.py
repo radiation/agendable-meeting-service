@@ -1,4 +1,5 @@
 from typing import Any, Generic, Type, TypeVar
+from uuid import UUID
 
 from app.core.logging_config import logger
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,8 +29,19 @@ class BaseRepository(Generic[ModelType]):
             logger.exception(f"Error creating {self.model.__name__}: {e}")
             raise
 
-    async def get_by_id(self, id: int) -> ModelType:
+    async def get_by_id(self, id: any) -> ModelType:
         logger.debug(f"Fetching {self.model.__name__} with ID: {id}")
+
+        logger.debug(f"Before conversion ID value: {id} (type: {type(id)})")
+
+        if isinstance(id, UUID):
+            logger.debug("ID is already a UUID, skipping conversion")
+        elif isinstance(self.model.id.type.python_type, type):
+            logger.debug("Converting ID to correct type")
+            id = self.model.id.type.python_type(id)
+
+        logger.debug(f"After conversion ID value: {id} (type: {type(id)})")
+
         stmt = select(self.model).filter(self.model.id == id)
 
         if hasattr(self.model, "attendees"):
@@ -92,11 +104,12 @@ class BaseRepository(Generic[ModelType]):
             )
             raise
 
-    async def update(self, id: int, update_data: dict) -> ModelType:
+    async def update(self, id: any, update_data: dict) -> ModelType:
         logger.debug(
             f"Updating {self.model.__name__} with ID: {id} and data: {update_data}"
         )
         obj = await self.get_by_id(id)
+        logger.debug(f"Retrieved {self.model.__name__} with ID {id}")
         if not obj:
             logger.warning(f"{self.model.__name__} with ID {id} not found")
             return None

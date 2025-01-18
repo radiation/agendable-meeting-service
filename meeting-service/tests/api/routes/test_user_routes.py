@@ -1,6 +1,9 @@
+import uuid
+
 import pytest
 
 user_data = {
+    "id": str(uuid.uuid4()),
     "email": "test@example.com",
     "first_name": "Test",
     "last_name": "User",

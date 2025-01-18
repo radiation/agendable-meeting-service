@@ -1,4 +1,5 @@
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union
+from uuid import UUID
 
 from app.core.logging_config import logger
 from app.db.repositories import BaseRepository
@@ -24,8 +25,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         logger.info(f"{self.model_name} created successfully with ID: {result.id}")
         return result
 
-    async def get_by_id(self, id: int) -> ModelType:
-        logger.info(f"Fetching {self.model_name} with ID: {id}")
+    async def get_by_id(self, id: Union[UUID, int]) -> ModelType:
+        logger.info(f"Fetching {self.model_name} with ID: {id} (type: {type(id)})")
         entity = await self.repo.get_by_id(id)
         if not entity:
             logger.warning(f"{self.model_name} with ID {id} not found")
@@ -48,7 +49,9 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         logger.info(f"Retrieved {len(result)} {self.model_name}(s)")
         return result
 
-    async def update(self, id: int, update_data: UpdateSchemaType) -> ModelType:
+    async def update(
+        self, id: Union[UUID, int], update_data: UpdateSchemaType
+    ) -> ModelType:
         logger.info(
             f"Updating {self.model_name} with ID: {id} \
                 and data: {update_data.model_dump()}"
@@ -63,8 +66,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         logger.info(f"{self.model_name} with ID {id} updated successfully")
         return updated_entity
 
-    async def delete(self, id: int) -> bool:
-        logger.info(f"Deleting {self.model_name} with ID: {id}")
+    async def delete(self, id: Union[UUID, int]) -> bool:
+        logger.info(f"Deleting {self.model_name} with ID: {id} (type: {type(id)})")
         entity = await self.repo.get_by_id(id)
         if not entity:
             logger.warning(f"{self.model_name} with ID {id} not found")

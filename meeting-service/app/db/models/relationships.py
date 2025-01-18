@@ -1,4 +1,5 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
 from . import Base
@@ -28,7 +29,10 @@ meeting_users = Table(
         primary_key=True,
     ),
     Column(
-        "user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+        "user_id",
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
     ),
     Column("created_at", DateTime(timezone=True), server_default=func.now()),
 )

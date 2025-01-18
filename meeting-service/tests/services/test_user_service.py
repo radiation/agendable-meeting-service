@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from app.db.models import User
 from app.exceptions import NotFoundError
@@ -6,7 +8,9 @@ from app.schemas import UserCreate, UserUpdate
 
 @pytest.mark.asyncio
 async def test_create_user(user_service):
-    new_user = UserCreate(email="test@example.com", first_name="Test", last_name="User")
+    new_user = UserCreate(
+        id=uuid.uuid4(), email="test@example.com", first_name="Test", last_name="User"
+    )
     created_user = await user_service.create(new_user)
 
     assert created_user.email == "test@example.com"
@@ -17,7 +21,7 @@ async def test_create_user(user_service):
 @pytest.mark.asyncio
 async def test_get_user_by_id(user_service):
     user_data = UserCreate(
-        email="test@example.com", first_name="Test", last_name="User"
+        id=uuid.uuid4(), email="test@example.com", first_name="Test", last_name="User"
     )
     created_user = await user_service.create(user_data)
 
@@ -30,7 +34,7 @@ async def test_get_user_by_id(user_service):
 @pytest.mark.asyncio
 async def test_update_user(user_service):
     user_data = UserCreate(
-        email="test@example.com", first_name="Test", last_name="User"
+        id=uuid.uuid4(), email="test@example.com", first_name="Test", last_name="User"
     )
     created_user = await user_service.create(user_data)
 
@@ -44,7 +48,7 @@ async def test_update_user(user_service):
 @pytest.mark.asyncio
 async def test_delete_user(user_service, db_session):
     user_data = UserCreate(
-        email="test@example.com", first_name="Test", last_name="User"
+        id=uuid.uuid4(), email="test@example.com", first_name="Test", last_name="User"
     )
     created_user = await user_service.create(user_data)
 
@@ -57,8 +61,15 @@ async def test_delete_user(user_service, db_session):
 
 @pytest.mark.asyncio
 async def test_get_users_by_email(user_service, db_session):
-    user1 = User(email="test1@example.com", first_name="First", last_name="User")
-    user2 = User(email="test2@example.com", first_name="Second", last_name="User")
+    user1 = User(
+        id=uuid.uuid4(), email="test1@example.com", first_name="First", last_name="User"
+    )
+    user2 = User(
+        id=uuid.uuid4(),
+        email="test2@example.com",
+        first_name="Second",
+        last_name="User",
+    )
 
     db_session.add_all([user1, user2])
     await db_session.commit()
