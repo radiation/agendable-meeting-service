@@ -10,8 +10,8 @@ from sqlalchemy.exc import NoResultFound
 
 
 class TaskService(BaseService[Task, TaskCreate, TaskUpdate]):
-    def __init__(self, repo: TaskRepository):
-        super().__init__(repo, model_name="Task")
+    def __init__(self, repo: TaskRepository, redis_client=None):
+        super().__init__(repo, model_name="Task", redis_client=redis_client)
 
     async def mark_task_complete(self, task_id: int) -> TaskRetrieve:
         logger.info(f"Marking task with ID {task_id} as complete")

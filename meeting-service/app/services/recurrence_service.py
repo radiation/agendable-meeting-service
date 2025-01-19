@@ -9,8 +9,8 @@ from dateutil.rrule import rrulestr
 
 
 class RecurrenceService(BaseService[Recurrence, RecurrenceCreate, RecurrenceUpdate]):
-    def __init__(self, repo: RecurrenceRepository):
-        super().__init__(repo, model_name="Recurrence")
+    def __init__(self, repo: RecurrenceRepository, redis_client=None):
+        super().__init__(repo, model_name="Recurrence", redis_client=redis_client)
 
     async def get_next_meeting_date(
         self, recurrence_id: int, after_date: datetime = datetime.now()

@@ -10,8 +10,13 @@ from dateutil.rrule import rrulestr
 
 
 class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
-    def __init__(self, repo: MeetingRepository, attendee_repo: AttendeeRepository):
-        super().__init__(repo, model_name="Meeting")
+    def __init__(
+        self,
+        repo: MeetingRepository,
+        attendee_repo: AttendeeRepository,
+        redis_client=None,
+    ):
+        super().__init__(repo, model_name="Meeting", redis_client=redis_client)
         self.attendee_repo = attendee_repo
 
     async def create_meeting_with_recurrence(

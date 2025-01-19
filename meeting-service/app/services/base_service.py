@@ -1,3 +1,4 @@
+import json
 from typing import Generic, TypeVar, Union
 from uuid import UUID
 
@@ -12,12 +13,24 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, repo: BaseRepository[ModelType], model_name: str = None):
+    def __init__(
+        self, repo: BaseRepository[ModelType], model_name: str = None, redis_client=None
+    ):
         self.repo = repo
         self.model_name = model_name or self._get_model_name()
 
     def _get_model_name(self) -> str:
         return self.repo.model.__name__
+
+    async def _publish_event(self, event_type: str, payload: dict):
+        event = {
+            "event_type": event_type,
+            "model": self._get_model_name(),
+            "payload": payload,
+        }
+        channel = f"{self._get_model_name().lower()}-events"
+        logger.info(f"Publishing event to channel {channel}: {event}")
+        await self.redis_client.publish(channel, json.dumps(event, default=str))
 
     async def create(self, create_data: CreateSchemaType) -> ModelType:
         logger.info(f"Creating {self.model_name} with data: {create_data.model_dump()}")

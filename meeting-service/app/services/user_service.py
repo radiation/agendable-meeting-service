@@ -5,5 +5,5 @@ from app.services.base_service import BaseService
 
 
 class UserService(BaseService[User, UserCreate, UserUpdate]):
-    def __init__(self, repo: UserRepository):
-        super().__init__(repo, model_name="User")
+    def __init__(self, repo: UserRepository, redis_client=None):
+        super().__init__(repo, model_name="User", redis_client=redis_client)

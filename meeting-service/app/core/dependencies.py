@@ -1,3 +1,4 @@
+from app.core.redis_client import redis_client
 from app.db.db import get_db
 from app.db.repositories import (
     AttendeeRepository,
@@ -17,14 +18,20 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+def get_redis_client():
+    return redis_client
+
+
 def get_meeting_repo(db: AsyncSession = Depends(get_db)) -> MeetingRepository:
     return MeetingRepository(db)
 
 
-def get_meeting_service(db: AsyncSession = Depends(get_db)) -> MeetingService:
+def get_meeting_service(
+    db: AsyncSession = Depends(get_db), redis=Depends(lambda: redis_client)
+) -> MeetingService:
     meeting_repo = MeetingRepository(db)
     attendee_repo = AttendeeRepository(db)
-    return MeetingService(meeting_repo, attendee_repo)
+    return MeetingService(meeting_repo, attendee_repo, redis_client=redis)
 
 
 def get_attendee_repo(
@@ -34,10 +41,10 @@ def get_attendee_repo(
 
 
 def get_attendee_service(
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db), redis=Depends(lambda: redis_client)
 ) -> AttendeeService:
     attendee_repo = AttendeeRepository(db)
-    return AttendeeService(attendee_repo)
+    return AttendeeService(attendee_repo, redis_client=redis)
 
 
 def get_recurrence_repo(
@@ -47,25 +54,29 @@ def get_recurrence_repo(
 
 
 def get_recurrence_service(
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db), redis=Depends(lambda: redis_client)
 ) -> RecurrenceService:
     recurrence_repo = RecurrenceRepository(db)
-    return RecurrenceService(recurrence_repo)
+    return RecurrenceService(recurrence_repo, redis_client=redis)
 
 
 def get_task_repo(db: AsyncSession = Depends(get_db)) -> TaskRepository:
     return TaskRepository(db)
 
 
-def get_task_service(db: AsyncSession = Depends(get_db)) -> TaskService:
+def get_task_service(
+    db: AsyncSession = Depends(get_db), redis=Depends(lambda: redis_client)
+) -> TaskService:
     task_repo = TaskRepository(db)
-    return TaskService(task_repo)
+    return TaskService(task_repo, redis_client=redis)
 
 
-def get_user_repo(db: AsyncSession = Depends(get_db)):
+def get_user_repo(db: AsyncSession = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
 
-def get_user_service(db: AsyncSession = Depends(get_db)):
+def get_user_service(
+    db: AsyncSession = Depends(get_db), redis=Depends(lambda: redis_client)
+) -> UserService:
     user_repo = UserRepository(db)
-    return UserService(user_repo)
+    return UserService(user_repo, redis_client=redis)
