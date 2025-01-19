@@ -1,4 +1,3 @@
-from .attendee_schemas import AttendeeCreate, AttendeeRetrieve, AttendeeUpdate
 from .meeting_schemas import (
     MeetingCreate,
     MeetingCreateBatch,

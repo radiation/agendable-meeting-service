@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from app.core.logging_config import logger
 from app.db.models import Meeting
@@ -37,19 +38,17 @@ class MeetingRepository(BaseRepository[Meeting]):
         return meetings
 
     async def get_meetings_by_user_id(
-        self, user_id: int, skip: int = 0, limit: int = 10
+        self, user_id: UUID, skip: int = 0, limit: int = 10
     ) -> list[Meeting]:
         logger.debug(
             f"Fetching meetings for user ID: {user_id} with skip={skip}, limit={limit}"
         )
+        # TODO: Filter by user ID
         stmt = (
             select(Meeting)
-            .join(Meeting.attendees)
             .options(
                 joinedload(Meeting.recurrence),
-                joinedload(Meeting.attendees),
             )
-            .filter(Meeting.attendees.any(user_id=user_id))
             .order_by(Meeting.start_date)
             .offset(skip)
             .limit(limit)

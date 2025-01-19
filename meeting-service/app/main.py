@@ -3,13 +3,7 @@ import os
 from builtins import anext
 from contextlib import asynccontextmanager
 
-from app.api.routes import (
-    attendee_routes,
-    meeting_routes,
-    recurrence_routes,
-    task_routes,
-    user_routes,
-)
+from app.api.routes import meeting_routes, recurrence_routes, task_routes, user_routes
 from app.core.dependencies import get_db, get_redis_client, get_user_service
 from app.core.logging_config import logger
 from app.exceptions import (
@@ -84,11 +78,6 @@ app.add_exception_handler(Exception, generic_exception_handler)
 app.include_router(meeting_routes.router, prefix="/meetings", tags=["meetings"])
 app.include_router(task_routes.router, prefix="/tasks", tags=["tasks"])
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
-app.include_router(
-    attendee_routes.router,
-    prefix="/attendees",
-    tags=["attendees"],
-)
 app.include_router(
     recurrence_routes.router,
     prefix="/recurrences",

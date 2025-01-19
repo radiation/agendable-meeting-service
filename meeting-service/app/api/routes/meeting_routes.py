@@ -9,13 +9,9 @@ from app.schemas import (
     MeetingUpdate,
 )
 from app.services import MeetingService
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 
 router = APIRouter()
-
-# Middleware to set the attendee for the request
-async def get_attendee(request: Request):
-    return request.state.attendee
 
 
 @router.post("/", response_model=MeetingRetrieve)

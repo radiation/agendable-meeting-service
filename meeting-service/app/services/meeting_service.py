@@ -2,7 +2,7 @@ from datetime import datetime
 
 from app.core.logging_config import logger
 from app.db.models import Meeting, Recurrence
-from app.db.repositories import AttendeeRepository, MeetingRepository
+from app.db.repositories import MeetingRepository
 from app.exceptions import NotFoundError, ValidationError
 from app.schemas import MeetingCreate, MeetingRetrieve, MeetingUpdate
 from app.services import BaseService
@@ -13,11 +13,9 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
     def __init__(
         self,
         repo: MeetingRepository,
-        attendee_repo: AttendeeRepository,
         redis_client=None,
     ):
         super().__init__(repo, model_name="Meeting", redis_client=redis_client)
-        self.attendee_repo = attendee_repo
 
     async def create_meeting_with_recurrence(
         self, meeting_data: MeetingCreate
@@ -162,24 +160,6 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
             f"Successfully created subsequent meeting with ID: {new_meeting.id}"
         )
         return MeetingRetrieve.model_validate(new_meeting)
-
-    async def create_meeting_with_recurrence_and_attendees(
-        self, meeting_data: dict, attendees: list[dict]
-    ):
-        async with self.repo.db.begin():
-            logger.info(
-                f"Creating meeting with recurrence \
-                    and attendees with data: {meeting_data}"
-            )
-            meeting = await self.repo.create_with_recurrence(meeting_data)
-            logger.info(f"Successfully created meeting with ID: {meeting.id}")
-
-            for attendee_data in attendees:
-                logger.info(f"Adding attendee: {attendee_data}")
-                attendee_data["meeting_id"] = meeting.id
-                await self.attendee_repo.create(attendee_data)
-
-            return meeting
 
     async def create_recurring_meetings(
         self, recurrence_id: int, base_meeting: dict, dates: list[datetime]

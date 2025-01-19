@@ -1,22 +1,14 @@
 import pytest
-from app.api.routes.meeting_routes import get_attendee
 from app.db.db import get_db
 from app.db.models import Base
 from app.db.repositories import (
-    AttendeeRepository,
     MeetingRepository,
     RecurrenceRepository,
     TaskRepository,
     UserRepository,
 )
 from app.main import app
-from app.services import (
-    AttendeeService,
-    MeetingService,
-    RecurrenceService,
-    TaskService,
-    UserService,
-)
+from app.services import MeetingService, RecurrenceService, TaskService, UserService
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -65,7 +57,6 @@ async def db_session():
 async def test_client(db_session):
     # Override the get_db dependency
     app.dependency_overrides[get_db] = lambda: db_session
-    app.dependency_overrides[get_attendee] = lambda: {"private_notes": "Mock notes"}
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://testserver"
@@ -76,14 +67,7 @@ async def test_client(db_session):
 @pytest.fixture
 async def meeting_service(db_session):
     repo = MeetingRepository(db_session)
-    service = MeetingService(repo=repo, attendee_repo=None)
-    return service
-
-
-@pytest.fixture
-async def attendee_service(db_session):
-    repo = AttendeeRepository(db_session)
-    service = AttendeeService(repo)
+    service = MeetingService(repo=repo)
     return service
 
 

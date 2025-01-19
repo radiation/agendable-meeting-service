@@ -44,8 +44,6 @@ class BaseRepository(Generic[ModelType]):
 
         stmt = select(self.model).filter(self.model.id == id)
 
-        if hasattr(self.model, "attendees"):
-            stmt = stmt.options(joinedload(self.model.attendees))
         if hasattr(self.model, "recurrence"):
             stmt = stmt.options(joinedload(self.model.recurrence))
 
@@ -67,8 +65,6 @@ class BaseRepository(Generic[ModelType]):
         )
         stmt = select(self.model).offset(skip).limit(limit)
 
-        if hasattr(self.model, "attendees"):
-            stmt = stmt.options(joinedload(self.model.attendees))
         if hasattr(self.model, "recurrence"):
             stmt = stmt.options(joinedload(self.model.recurrence))
 
@@ -85,8 +81,6 @@ class BaseRepository(Generic[ModelType]):
         logger.debug(f"Fetching {self.model.__name__} by {field_name}={value}")
         stmt = select(self.model).filter(getattr(self.model, field_name) == value)
 
-        if hasattr(self.model, "attendees"):
-            stmt = stmt.options(joinedload(self.model.attendees))
         if hasattr(self.model, "recurrence"):
             stmt = stmt.options(joinedload(self.model.recurrence))
 

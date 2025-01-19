@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
-from app.db.models import Attendee, Meeting, Recurrence
+from app.db.models import Meeting, Recurrence
 from app.db.repositories import MeetingRepository
 
 
@@ -118,14 +118,6 @@ async def test_relationships(db_session):
     db_session.add(meeting)
     await db_session.commit()
 
-    # Add attendees
-    attendees = [
-        Attendee(meeting_id=meeting.id, user_id=1),
-        Attendee(meeting_id=meeting.id, user_id=2),
-    ]
-    db_session.add_all(attendees)
-    await db_session.commit()
-
     # Query the meeting with relationships
     repo = MeetingRepository(db_session)
     result = await repo.get_by_id(meeting.id)
@@ -133,5 +125,3 @@ async def test_relationships(db_session):
     # Assertions
     assert result is not None
     assert result.recurrence.title == "Weekly Recurrence"
-    assert len(result.attendees) == 2
-    assert {attendee.user_id for attendee in result.attendees} == {1, 2}
