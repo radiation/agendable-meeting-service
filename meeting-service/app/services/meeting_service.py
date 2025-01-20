@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from app.core.logging_config import logger
 from app.db.models import Meeting, Recurrence
@@ -179,3 +180,25 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
             logger.warning("No meetings created")
             raise ValidationError(detail="No meetings created")
         return [meeting.model_dump() for meeting in meetings]
+
+    async def add_users(self, meeting_id: int, user_ids: list[UUID]):
+        logger.info(f"Adding users to meeting ID {meeting_id}: {user_ids}")
+
+        # Ensure the meeting exists
+        meeting = await self.repo.get_by_id(meeting_id)
+        if not meeting:
+            logger.warning(f"Meeting with ID {meeting_id} not found")
+            raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
+
+        await self.repo.add_users_to_meeting(meeting_id, user_ids)
+        logger.info(f"Successfully added users to meeting ID {meeting_id}")
+
+    async def get_users(self, meeting_id: int):
+        logger.info(f"Retrieving users for meeting ID {meeting_id}")
+
+        meeting = await self.repo.get_by_id(meeting_id)
+        if not meeting:
+            logger.warning(f"Meeting with ID {meeting_id} not found")
+            raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
+
+        return await self.repo.get_users_from_meeting(meeting_id)

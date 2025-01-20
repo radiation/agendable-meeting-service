@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.core.logging_config import logger
-from app.db.models import Meeting
+from app.db.models import Meeting, User, meeting_users
 from app.db.repositories import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -88,6 +88,49 @@ class MeetingRepository(BaseRepository[Meeting]):
         meeting = result.scalars().first()
         logger.debug(f"Meeting with ID {new_meeting.id} created successfully")
         return meeting
+
+    async def add_users_to_meeting(self, meeting_id: int, user_ids: list[UUID]):
+        logger.info(f"Adding users to meeting ID {meeting_id}: {user_ids}")
+
+        try:
+            # Check for existing records
+            for user_id in user_ids:
+                query = select(meeting_users).where(
+                    (meeting_users.c.meeting_id == meeting_id)
+                    & (meeting_users.c.user_id == user_id)
+                )
+                result = await self.db.execute(query)
+                existing = result.scalar_one_or_none()
+
+                if not existing:
+                    new_entry = {"meeting_id": meeting_id, "user_id": user_id}
+                    stmt = meeting_users.insert().values(new_entry)
+                    await self.db.execute(stmt)
+
+            await self.db.commit()
+            logger.info(f"Successfully added users to meeting ID {meeting_id}")
+        except Exception as e:
+            logger.exception(f"Error adding users to meeting ID {meeting_id}: {e}")
+            raise
+
+    async def get_users_from_meeting(self, meeting_id: int):
+        logger.info(f"Fetching users for meeting ID {meeting_id}")
+
+        try:
+            # Join meeting_users with users to fetch user details
+            stmt = (
+                select(User)
+                .join(meeting_users, User.id == meeting_users.c.user_id)
+                .where(meeting_users.c.meeting_id == meeting_id)
+            )
+
+            result = await self.db.execute(stmt)
+            users = result.scalars().all()
+            logger.info(f"Found {len(users)} users for meeting ID {meeting_id}")
+            return users
+        except Exception as e:
+            logger.exception(f"Error fetching users for meeting ID {meeting_id}: {e}")
+            raise
 
     async def complete_meeting(self, meeting_id: int) -> Meeting:
         logger.debug(f"Marking meeting with ID {meeting_id} as complete")

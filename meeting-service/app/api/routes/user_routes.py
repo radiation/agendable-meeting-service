@@ -54,6 +54,20 @@ async def get_user(
     return result
 
 
+@router.get("/by-email/{email}", response_model=UserRetrieve)
+@log_execution_time
+async def get_user_by_email(
+    email: str, service: UserService = Depends(get_user_service)
+) -> UserRetrieve:
+    logger.info(f"Fetching user with email: {email}")
+    result = await service.get_by_field("email", email)
+    if result is None:
+        logger.warning(f"User with email {email} not found")
+        raise NotFoundError(f"User with email {email} not found")
+    logger.info(f"User retrieved: {result}")
+    return result[0]
+
+
 @router.put("/{user_id}", response_model=UserRetrieve)
 @log_execution_time
 async def update_user(

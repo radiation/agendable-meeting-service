@@ -22,3 +22,8 @@ class UserUpdate(UserBase):
 class UserRetrieve(UserBase):
     id: UUID
     model_config = {"from_attributes": True}
+
+
+# For adding users to a meeting
+class AddUsersRequest(BaseModel):
+    user_ids: list[UUID]

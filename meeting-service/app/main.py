@@ -77,7 +77,7 @@ app.add_exception_handler(Exception, generic_exception_handler)
 # Include routers that might use the database internally
 app.include_router(meeting_routes.router, prefix="/meetings", tags=["meetings"])
 app.include_router(task_routes.router, prefix="/tasks", tags=["tasks"])
-app.include_router(user_routes.router, prefix="/users", tags=["users"])
+app.include_router(user_routes.router, prefix="/meeting_users", tags=["users"])
 app.include_router(
     recurrence_routes.router,
     prefix="/recurrences",

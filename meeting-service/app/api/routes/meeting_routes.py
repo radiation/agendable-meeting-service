@@ -3,6 +3,7 @@ from app.core.dependencies import get_meeting_service
 from app.core.logging_config import logger
 from app.exceptions import NotFoundError, ValidationError
 from app.schemas import (
+    AddUsersRequest,
     MeetingCreate,
     MeetingCreateBatch,
     MeetingRetrieve,
@@ -146,6 +147,28 @@ async def next_meeting(
         raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
     logger.info(f"Next meeting retrieved: {next_meeting}")
     return next_meeting
+
+
+@router.post("/{meeting_id}/users/")
+@log_execution_time
+async def add_users_to_meeting(
+    meeting_id: int,
+    request: AddUsersRequest,
+    meeting_service: MeetingService = Depends(get_meeting_service),
+):
+    logger.info(request.user_ids)
+    await meeting_service.add_users(meeting_id, request.user_ids)
+    return {"message": "Users added to meeting successfully"}
+
+
+@router.get("/{meeting_id}/users/")
+@log_execution_time
+async def get_users_from_meeting(
+    meeting_id: int,
+    meeting_service: MeetingService = Depends(get_meeting_service),
+):
+    users = await meeting_service.get_users(meeting_id)
+    return users
 
 
 @router.post("/recurring-meetings", response_model=list[MeetingRetrieve])
