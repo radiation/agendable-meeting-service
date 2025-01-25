@@ -34,7 +34,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def create(self, create_data: CreateSchemaType) -> ModelType:
         logger.info(f"Creating {self.model_name} with data: {create_data.model_dump()}")
-        result = await self.repo.create(create_data.model_dump())
+        model_instance = self.repo.model(**create_data.model_dump())
+        result = await self.repo.create(model_instance)
         logger.info(f"{self.model_name} created successfully with ID: {result.id}")
         return result
 

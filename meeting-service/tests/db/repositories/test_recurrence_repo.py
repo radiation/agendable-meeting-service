@@ -7,13 +7,10 @@ from app.db.repositories import RecurrenceRepository
 async def test_create_recurrence(db_session):
     repo = RecurrenceRepository(db_session)
 
-    new_recurrence = {
-        "title": "Test Recurrence",
-        "rrule": "FREQ=DAILY;INTERVAL=1",
-    }
-    recurrence = await repo.create(new_recurrence)
-    assert recurrence.title == "Test Recurrence"
-    assert recurrence.rrule == "FREQ=DAILY;INTERVAL=1"
+    recurrence_obj = Recurrence(title="Test Recurrence", rrule="FREQ=DAILY;INTERVAL=1")
+    created_recurrence = await repo.create(recurrence_obj)
+    assert created_recurrence.title == "Test Recurrence"
+    assert created_recurrence.rrule == "FREQ=DAILY;INTERVAL=1"
 
 
 @pytest.mark.asyncio

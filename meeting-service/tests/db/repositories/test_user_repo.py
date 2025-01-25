@@ -9,20 +9,14 @@ from app.db.repositories import UserRepository
 async def test_create_user(db_session):
     repo = UserRepository(db_session)
 
-    new_user = await repo.create(
-        {
-            "id": uuid.uuid4(),
-            "email": "test@example.com",
-            "first_name": "Test",
-            "last_name": "User",
-        }
+    user_obj = User(
+        id=uuid.uuid4(), email="test@example.com", first_name="Test", last_name="User"
     )
-    db_session.add(new_user)
-    await db_session.commit()
+    created_user = await repo.create(user_obj)
 
-    assert new_user.email == "test@example.com"
-    assert new_user.first_name == "Test"
-    assert new_user.last_name == "User"
+    assert created_user.email == user_obj.email
+    assert created_user.first_name == user_obj.first_name
+    assert created_user.last_name == user_obj.last_name
 
 
 @pytest.mark.asyncio

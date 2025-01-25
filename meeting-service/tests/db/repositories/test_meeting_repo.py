@@ -9,15 +9,15 @@ from app.db.repositories import MeetingRepository
 async def test_create_meeting(db_session):
     repo = MeetingRepository(db_session)
 
-    new_meeting = {
-        "title": "Test Meeting",
-        "start_date": datetime.now(),
-        "end_date": datetime.now() + timedelta(hours=1),
-        "duration": 60,
-    }
-    meeting = await repo.create(new_meeting)
-    assert meeting.title == "Test Meeting"
-    assert meeting.duration == 60
+    meeting_obj = Meeting(
+        title="Test Meeting",
+        duration=60,
+        start_date=datetime.now(),
+        end_date=datetime.now() + timedelta(hours=1),
+    )
+    created_meeting = await repo.create(meeting_obj)
+    assert created_meeting.title == meeting_obj.title
+    assert created_meeting.duration == meeting_obj.duration
 
 
 @pytest.mark.asyncio

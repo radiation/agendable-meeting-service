@@ -35,7 +35,8 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
                     detail=f"Recurrence with ID {meeting_data.recurrence_id} not found"
                 )
 
-        meeting = await self.repo.create_with_recurrence(meeting_data.model_dump())
+        meeting_obj = Meeting(**meeting_data.model_dump())
+        meeting = await self.repo.create_with_recurrence(meeting_obj)
         logger.info(f"Successfully created meeting with ID: {meeting.id}")
         return MeetingRetrieve.model_validate(meeting)
 
@@ -143,7 +144,7 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
         duration = meeting.end_date - meeting.start_date if meeting.end_date else None
         next_meeting_end_date = next_meeting_date + duration if duration else None
 
-        meeting_data = MeetingCreate(
+        meeting_data = Meeting(
             title=meeting.title,
             start_date=next_meeting_date,
             end_date=next_meeting_end_date,
@@ -153,10 +154,8 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
             recurrence_id=meeting.recurrence_id,
         )
 
-        logger.info(
-            f"Creating subsequent meeting with data: {meeting_data.model_dump()}"
-        )
-        new_meeting = await self.repo.create(meeting_data.model_dump())
+        logger.info(f"Creating subsequent meeting with data: {meeting_data}")
+        new_meeting = await self.repo.create(meeting_data)
         logger.info(
             f"Successfully created subsequent meeting with ID: {new_meeting.id}"
         )

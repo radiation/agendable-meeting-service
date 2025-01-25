@@ -14,9 +14,8 @@ class BaseRepository(Generic[ModelType]):
         self.model = model
         self.db = db
 
-    async def create(self, obj_in: dict) -> ModelType:
-        logger.debug(f"Creating {self.model.__name__} with data: {obj_in}")
-        db_obj = self.model(**obj_in)
+    async def create(self, db_obj: ModelType) -> ModelType:
+        logger.debug(f"Creating {self.model.__name__} with data: {db_obj}")
         self.db.add(db_obj)
         try:
             await self.db.commit()

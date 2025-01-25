@@ -7,11 +7,10 @@ from app.db.repositories import TaskRepository
 async def test_create_task(db_session):
     repo = TaskRepository(db_session)
 
-    new_task = await repo.create({"title": "New Task"})
-    db_session.add(new_task)
-    await db_session.commit()
+    task_obj = Task(title="New Task")
+    created_task = await repo.create(task_obj)
 
-    assert new_task.title == "New Task"
+    assert created_task.title == task_obj.title
 
 
 @pytest.mark.asyncio

@@ -71,22 +71,21 @@ class MeetingRepository(BaseRepository[Meeting]):
             logger.warning(f"Meeting with ID {id} not found")
         return meeting
 
-    async def create_with_recurrence(self, meeting_data: dict) -> Meeting:
-        logger.debug(f"Creating meeting with recurrence using data: {meeting_data}")
-        new_meeting = self.model(**meeting_data)
-        self.db.add(new_meeting)
+    async def create_with_recurrence(self, meeting: Meeting) -> Meeting:
+        logger.debug(f"Creating meeting with recurrence using data: {meeting}")
+        self.db.add(meeting)
         await self.db.commit()
-        await self.db.refresh(new_meeting)
+        await self.db.refresh(meeting)
 
         # Eagerly load the recurrence relationship
         stmt = (
             select(self.model)
             .options(joinedload(self.model.recurrence))
-            .filter(self.model.id == new_meeting.id)
+            .filter(self.model.id == meeting.id)
         )
         result = await self.db.execute(stmt)
         meeting = result.scalars().first()
-        logger.debug(f"Meeting with ID {new_meeting.id} created successfully")
+        logger.debug(f"Meeting with ID {meeting.id} created successfully")
         return meeting
 
     async def add_users_to_meeting(self, meeting_id: int, user_ids: list[UUID]):
