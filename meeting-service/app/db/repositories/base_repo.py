@@ -97,24 +97,20 @@ class BaseRepository(Generic[ModelType]):
             )
             raise
 
-    async def update(self, id: any, update_data: dict) -> ModelType:
-        logger.debug(
-            f"Updating {self.model.__name__} with ID: {id} and data: {update_data}"
-        )
-        obj = await self.get_by_id(id)
-        logger.debug(f"Retrieved {self.model.__name__} with ID {id}")
-        if not obj:
-            logger.warning(f"{self.model.__name__} with ID {id} not found")
-            return None
+    async def update(self, updated_obj: ModelType) -> ModelType:
+        logger.debug(f"Updating {self.model.__name__} with data: {updated_obj}")
         try:
-            for key, value in update_data.items():
-                setattr(obj, key, value)
+            self.db.add(updated_obj)
             await self.db.commit()
-            await self.db.refresh(obj)
-            logger.debug(f"{self.model.__name__} with ID {id} updated successfully")
-            return obj
+            await self.db.refresh(updated_obj)
+            logger.debug(
+                f"{self.model.__name__} with ID {updated_obj.id} updated successfully"
+            )
+            return updated_obj
         except Exception as e:
-            logger.exception(f"Error updating {self.model.__name__} with ID {id}: {e}")
+            logger.exception(
+                f"Error updating {self.model.__name__} with ID {updated_obj.id}: {e}"
+            )
             raise
 
     async def delete(self, id: int) -> bool:

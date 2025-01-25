@@ -77,7 +77,7 @@ async def test_update_meeting(db_session):
     await db_session.commit()
 
     updated_data = {"title": "Updated Meeting", "duration": 120}
-    updated_meeting = await repo.update(meeting.id, updated_data)
+    updated_meeting = await repo.update(Meeting(**updated_data))
     assert updated_meeting.title == "Updated Meeting"
     assert updated_meeting.duration == 120
 

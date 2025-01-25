@@ -34,7 +34,7 @@ async def test_update_task(db_session):
     db_session.add(task)
     await db_session.commit()
 
-    updated_task = await repo.update(task.id, {"title": "Updated Task"})
+    updated_task = await repo.update(Task(title="Updated Task"))
     assert updated_task.title == "Updated Task"
 
 

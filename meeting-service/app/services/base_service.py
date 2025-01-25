@@ -18,6 +18,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ):
         self.repo = repo
         self.model_name = model_name or self._get_model_name()
+        self.redis_client = redis_client
 
     def _get_model_name(self) -> str:
         return self.repo.model.__name__
@@ -67,16 +68,17 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self, id: Union[UUID, int], update_data: UpdateSchemaType
     ) -> ModelType:
         logger.info(
-            f"Updating {self.model_name} with ID: {id} \
-                and data: {update_data.model_dump()}"
+            f"Updating {self.model_name} with ID: \
+                {id} and data: {update_data.model_dump()}"
         )
         entity = await self.repo.get_by_id(id)
         if not entity:
             logger.warning(f"{self.model_name} with ID {id} not found")
             raise NotFoundError(detail=f"{self.model_name} with ID {id} not found")
-        updated_entity = await self.repo.update(
-            id, update_data.model_dump(exclude_unset=True)
-        )
+        update_dict = update_data.model_dump(exclude_unset=True)
+        for key, value in update_dict.items():
+            setattr(entity, key, value)
+        updated_entity = await self.repo.update(entity)
         logger.info(f"{self.model_name} with ID {id} updated successfully")
         return updated_entity
 

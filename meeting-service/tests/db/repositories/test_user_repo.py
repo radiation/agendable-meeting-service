@@ -46,9 +46,7 @@ async def test_update_user(db_session):
     db_session.add(user)
     await db_session.commit()
 
-    updated_user = await repo.update(
-        user.id, {"first_name": "Updated", "last_name": "Name"}
-    )
+    updated_user = await repo.update(User(first_name="Updated", last_name="Name"))
     assert updated_user.first_name == "Updated"
     assert updated_user.last_name == "Name"
 
