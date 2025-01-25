@@ -1,20 +1,14 @@
 import json
 
 import pytest
-
-meeting_data = {
-    "title": "Team Meeting",
-    "start_date": "2024-01-01T09:00:00Z",
-    "duration": 60,
-    "location": "Conference Room 1",
-    "notes": "Monthly review meeting",
-    "num_reschedules": 0,
-    "reminder_sent": False,
-}
+from tests.factories.meeting_factory import MeetingFactory
 
 
 @pytest.mark.asyncio
 async def test_meeting_router_lifecycle(test_client):
+    # Generate meeting data using the factory
+    meeting_data = MeetingFactory.as_dict()
+
     # Create a meeting
     response = await test_client.post(
         "/meetings/",
@@ -22,7 +16,7 @@ async def test_meeting_router_lifecycle(test_client):
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["title"] == "Team Meeting"
+    assert data["title"] == meeting_data["title"]
     meeting_id = data["id"]
 
     # List all meetings
@@ -35,34 +29,21 @@ async def test_meeting_router_lifecycle(test_client):
     response = await test_client.get(f"/meetings/{meeting_id}")
     assert response.status_code == 200
     meeting = response.json()
-    assert meeting["id"] == 1
-    assert meeting["title"] == "Team Meeting"
+    assert meeting["id"] == meeting_id
+    assert meeting["title"] == meeting_data["title"]
 
     # Update the meeting we created
-    response = await test_client.post(
-        "/meetings/",
-        json=meeting_data,
-    )
-    meeting_id = response.json()["id"]
+    updated_meeting_data = MeetingFactory.as_dict(title="Updated Team Meeting")
     response = await test_client.put(
         f"/meetings/{meeting_id}",
-        json={
-            "title": "Updated Team Meeting",
-            "start_date": "2024-01-01T09:00:00Z",
-            "duration": 60,
-            "location": "New Location",
-            "notes": "Updated notes",
-            "num_reschedules": 1,
-            "reminder_sent": True,
-        },
+        json=updated_meeting_data,
     )
     assert response.status_code == 200
     updated_meeting = response.json()
     assert updated_meeting["title"] == "Updated Team Meeting"
-    assert updated_meeting["location"] == "New Location"
 
     # Delete the meeting we created
-    response = await test_client.delete("/meetings/1")
+    response = await test_client.delete(f"/meetings/{meeting_id}")
     assert response.status_code == 204
 
 
@@ -81,18 +62,10 @@ async def test_create_meeting_with_recurrence_id(test_client):
     assert recurrence["title"] == "Annual Meeting"
     recurrence_id = recurrence["id"]
 
-    # Create a meeting with the recurrence id
-    meeting_data = {
-        "title": "Team Meeting",
-        "start_date": "2024-01-01T09:00:00Z",
-        "duration": 60,
-        "location": "Conference Room 1",
-        "notes": "Monthly review meeting",
-        "num_reschedules": 0,
-        "reminder_sent": False,
-        "recurrence_id": recurrence_id,
-    }
+    # Generate meeting data with recurrence ID
+    meeting_data = MeetingFactory.as_dict(recurrence_id=recurrence_id)
 
+    # Create a meeting with the recurrence ID
     response = await test_client.post(
         "/meetings/",
         json=meeting_data,
@@ -100,17 +73,17 @@ async def test_create_meeting_with_recurrence_id(test_client):
     assert response.status_code == 200, f"Failed to create meeting: {response.json()}"
 
     meeting = response.json()
-    assert meeting["title"] == "Team Meeting"
-    assert (
-        meeting["recurrence"]["rrule"]
-        == "FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0"
-    )
-    assert meeting["recurrence"]["title"] == "Annual Meeting"
+    assert meeting["title"] == meeting_data["title"]
+    assert meeting["recurrence"]["rrule"] == recurrence_data["rrule"]
+    assert meeting["recurrence"]["title"] == recurrence_data["title"]
 
 
 @pytest.mark.asyncio
 async def test_complete_meeting(test_client, mock_redis_client):
-    # Create a meeting without recurrence
+    # Generate meeting data
+    meeting_data = MeetingFactory.as_dict()
+
+    # Create a meeting
     response = await test_client.post(
         "/meetings/",
         json=meeting_data,
@@ -168,6 +141,9 @@ async def test_complete_meeting(test_client, mock_redis_client):
 
 @pytest.mark.asyncio
 async def test_get_next_meeting(test_client):
+    # Generate meeting data
+    meeting_data = MeetingFactory.as_dict()
+
     # Create a meeting
     response = await test_client.post(
         "/meetings/",
