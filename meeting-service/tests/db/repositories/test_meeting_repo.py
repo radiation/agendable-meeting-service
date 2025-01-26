@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 from app.db.models import Meeting, Recurrence
@@ -13,7 +13,6 @@ async def test_create_meeting(db_session):
         title="Test Meeting",
         duration=60,
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
     )
     created_meeting = await repo.create(meeting_obj)
     assert created_meeting.title == meeting_obj.title
@@ -27,7 +26,6 @@ async def test_get_meeting_by_id(db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     db_session.add(meeting)
@@ -46,7 +44,6 @@ async def test_get_meeting_by_user(db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     db_session.add(meeting)
@@ -70,7 +67,6 @@ async def test_update_meeting(db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     db_session.add(meeting)
@@ -89,7 +85,6 @@ async def test_delete_meeting(db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     db_session.add(meeting)
@@ -111,7 +106,6 @@ async def test_relationships(db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
         recurrence_id=recurrence.id,
     )

@@ -1,4 +1,7 @@
+from datetime import datetime
+
 import sqlalchemy.sql.functions as func
+from dateutil.rrule import rrulestr
 from sqlalchemy import Column, DateTime, Index, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -27,8 +30,16 @@ class Recurrence(Base):
     rrule = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Define the relationship here
     meetings = relationship("Meeting", back_populates="recurrence")
+
+    def get_next_date(self, start_date: datetime) -> datetime:
+        """Generate the next occurrence date based on the recurrence rule."""
+        try:
+            rule = rrulestr(self.rrule, dtstart=start_date)
+            next_date = rule.after(start_date, inc=False)
+            return next_date
+        except Exception as e:
+            raise ValueError(f"Invalid recurrence rule: {self.rrule}. Error: {str(e)}")
 
     def __repr__(self):
         return f"<Recurrence(title={self.title}, rrule={self.rrule})>"

@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.core.logging_config import logger
-from app.db.models import Meeting, User, meeting_users
+from app.db.models import Meeting, Recurrence, User, meeting_users
 from app.db.repositories import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -13,7 +13,22 @@ class MeetingRepository(BaseRepository[Meeting]):
     def __init__(self, db: AsyncSession):
         super().__init__(Meeting, db)
 
-    async def get_meetings_with_recurrence(
+    async def get_recurrence_by_id(self, recurrence_id: int) -> Recurrence:
+        """Fetch a recurrence by its ID."""
+        logger.debug(f"Fetching recurrence with ID: {recurrence_id}")
+
+        stmt = select(Recurrence).where(Recurrence.id == recurrence_id)
+        result = await self.db.execute(stmt)
+        recurrence = result.scalar_one_or_none()
+
+        if not recurrence:
+            logger.warning(f"Recurrence with ID {recurrence_id} not found")
+        else:
+            logger.debug(f"Recurrence retrieved: {recurrence}")
+
+        return recurrence
+
+    async def get_future_meetings(
         self, recurrence_id: int, after_date: datetime, skip: int = 0, limit: int = 10
     ) -> list[Meeting]:
         logger.debug(
@@ -121,11 +136,10 @@ class MeetingRepository(BaseRepository[Meeting]):
             self.model(
                 recurrence_id=recurrence_id,
                 start_date=start_date,
-                end_date=start_date + base_meeting["duration"],
                 **{
                     k: v
                     for k, v in base_meeting.items()
-                    if k not in ["start_date", "end_date", "duration"]
+                    if k not in ["start_date", "duration"]
                 },
             )
             for start_date in dates

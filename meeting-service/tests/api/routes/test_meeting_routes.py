@@ -3,7 +3,6 @@ import pytest
 meeting_data = {
     "title": "Team Meeting",
     "start_date": "2024-01-01T09:00:00Z",
-    "end_date": "2024-01-01T10:00:00Z",
     "duration": 60,
     "location": "Conference Room 1",
     "notes": "Monthly review meeting",
@@ -48,7 +47,6 @@ async def test_meeting_router_lifecycle(test_client):
         json={
             "title": "Updated Team Meeting",
             "start_date": "2024-01-01T09:00:00Z",
-            "end_date": "2024-01-01T10:00:00Z",
             "duration": 60,
             "location": "New Location",
             "notes": "Updated notes",
@@ -85,7 +83,6 @@ async def test_create_meeting_with_recurrence_id(test_client):
     meeting_data = {
         "title": "Team Meeting",
         "start_date": "2024-01-01T09:00:00Z",
-        "end_date": "2024-01-01T10:00:00Z",
         "duration": 60,
         "location": "Conference Room 1",
         "notes": "Monthly review meeting",

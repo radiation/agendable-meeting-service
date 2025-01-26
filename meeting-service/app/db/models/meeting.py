@@ -26,7 +26,6 @@ class Meeting(Base):
     recurrence_id = Column(Integer, ForeignKey("recurrences.id"), nullable=True)
     title = Column(String(100), default="")
     start_date = Column(DateTime(timezone=True))
-    end_date = Column(DateTime(timezone=True))
     duration = Column(Integer, default=30)
     location = Column(String(100), default="")
     notes = Column(String)

@@ -17,14 +17,12 @@ class MeetingBase(BaseModel):
 
 class MeetingCreate(MeetingBase):
     start_date: datetime
-    end_date: datetime
     duration: Optional[int] = None
     recurrence_id: Optional[int] = None
 
 
 class MeetingUpdate(MeetingBase):
     start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
     duration: Optional[int] = None
     recurrence_id: Optional[int] = None
 
@@ -32,7 +30,6 @@ class MeetingUpdate(MeetingBase):
 class MeetingRetrieve(MeetingBase):
     id: int
     start_date: datetime
-    end_date: datetime
     duration: int
     recurrence: Optional[RecurrenceRetrieve]
 

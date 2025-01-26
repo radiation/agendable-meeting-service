@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 from app.db.models import Meeting
@@ -11,7 +11,6 @@ async def test_create_meeting_service(meeting_service, db_session):
     new_meeting = MeetingCreate(
         title="Service Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     created_meeting = await meeting_service.create(new_meeting)
@@ -24,7 +23,6 @@ async def test_get_meeting_service(meeting_service, db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     db_session.add(meeting)
@@ -40,7 +38,6 @@ async def test_update_meeting_service(meeting_service, db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     db_session.add(meeting)
@@ -57,7 +54,6 @@ async def test_delete_meeting_service(meeting_service, db_session):
     meeting = Meeting(
         title="Test Meeting",
         start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(hours=1),
         duration=60,
     )
     db_session.add(meeting)
