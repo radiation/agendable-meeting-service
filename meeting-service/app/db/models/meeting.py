@@ -36,7 +36,7 @@ class Meeting(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    recurrence = relationship("Recurrence", back_populates="meetings", lazy="select")
+    recurrence = relationship("Recurrence", back_populates="meetings", lazy="joined")
     tasks = relationship("Task", secondary=meeting_tasks, back_populates="meetings")
     users = relationship("User", secondary=meeting_users, back_populates="meetings")
 

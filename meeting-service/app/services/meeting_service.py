@@ -18,28 +18,6 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
     ):
         super().__init__(repo, model_name="Meeting", redis_client=redis_client)
 
-    async def create_meeting_with_recurrence(
-        self, meeting_data: MeetingCreate
-    ) -> MeetingRetrieve:
-        logger.info(
-            f"Starting create_meeting_with_recurrence \
-                with data: {meeting_data.model_dump()}"
-        )
-        if meeting_data.recurrence_id:
-            recurrence = await self.repo.db.get(Recurrence, meeting_data.recurrence_id)
-            if not recurrence:
-                logger.warning(
-                    f"Recurrence with ID {meeting_data.recurrence_id} not found"
-                )
-                raise ValidationError(
-                    detail=f"Recurrence with ID {meeting_data.recurrence_id} not found"
-                )
-
-        meeting_obj = Meeting(**meeting_data.model_dump())
-        meeting = await self.repo.create_with_recurrence(meeting_obj)
-        logger.info(f"Successfully created meeting with ID: {meeting.id}")
-        return MeetingRetrieve.model_validate(meeting)
-
     async def get_meetings_by_user_id(
         self, user_id: int, skip: int = 0, limit: int = 10
     ) -> list[MeetingRetrieve]:
@@ -50,34 +28,23 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
 
     async def complete_meeting(self, meeting_id: int) -> MeetingRetrieve:
         logger.info(f"Completing meeting with ID: {meeting_id}")
-        meeting = await self.repo.get_by_id_with_recurrence(meeting_id)
+        meeting = await self.repo.get_by_id(meeting_id)
         if not meeting:
             logger.warning(f"Meeting with ID {meeting_id} not found")
             raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
 
+        # TODO: Move unresolved tasks to the next meeting
         meeting.completed = True
         await self.repo.db.commit()
         await self.repo.db.refresh(meeting)
         logger.info(f"Successfully completed meeting with ID: {meeting_id}")
         return MeetingRetrieve.model_validate(meeting)
 
-    async def add_recurrence(
-        self, meeting_id: int, recurrence_id: int
-    ) -> MeetingRetrieve:
-        meeting = await self.repo.get_by_id_with_recurrence(meeting_id)
-        if not meeting:
-            raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
-
-        meeting.recurrence_id = recurrence_id
-        await self.repo.db.commit()
-        await self.repo.db.refresh(meeting)
-        return MeetingRetrieve.model_validate(meeting)
-
     async def get_subsequent_meeting(
         self, meeting_id: int, after_date: datetime = datetime.now()
     ) -> MeetingRetrieve:
         logger.info(f"Fetching subsequent meeting for meeting with ID: {meeting_id}")
-        meeting = await self.repo.get_by_id_with_recurrence(meeting_id)
+        meeting = await self.repo.get_by_id(meeting_id)
         if not meeting:
             logger.warning(f"Meeting with ID {meeting_id} not found")
             raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")

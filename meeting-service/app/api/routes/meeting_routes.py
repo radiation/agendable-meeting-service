@@ -23,17 +23,14 @@ async def create_meeting(
 ) -> MeetingRetrieve:
     logger.info(f"Creating meeting with data: {meeting.model_dump()}")
     try:
-        if meeting.recurrence_id:
-            result = await service.create_meeting_with_recurrence(meeting)
-        else:
-            result = await service.create(meeting)
+        result = await service.create(meeting)
         logger.info(f"Meeting created successfully with ID: {result.id}")
         return result
     except ValidationError as ve:
         logger.warning(f"Validation error: {ve}")
         raise
     except Exception:
-        logger.exception("Unexpected error while creating meeting")
+        logger.exception("Unexpected error while creating meeting:")
         raise ValidationError(detail="An unexpected error occurred. Please try again.")
 
 
@@ -98,7 +95,7 @@ async def delete_meeting(
 
 @router.post("/{meeting_id}/complete/", response_model=MeetingRetrieve)
 @log_execution_time
-async def complete_meeting_route(
+async def complete_meeting(
     meeting_id: int,
     service: MeetingService = Depends(get_meeting_service),
 ) -> MeetingRetrieve:
@@ -126,7 +123,9 @@ async def add_recurrence(
     logger.info(
         f"Adding recurrence with ID {recurrence_id} to meeting with ID {meeting_id}"
     )
-    meeting = await service.add_recurrence(meeting_id, recurrence_id)
+    meeting = await service.update(
+        meeting_id, MeetingUpdate(recurrence_id=recurrence_id)
+    )
     if meeting is None:
         logger.warning(f"Meeting with ID {meeting_id} not found")
         raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")

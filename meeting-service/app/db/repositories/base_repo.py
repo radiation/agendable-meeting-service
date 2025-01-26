@@ -1,10 +1,9 @@
-from typing import Any, Generic, Type, TypeVar
+from typing import Any, Generic, Type, TypeVar, Union
 from uuid import UUID
 
 from app.core.logging_config import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
 
 ModelType = TypeVar("ModelType")
 
@@ -20,6 +19,9 @@ class BaseRepository(Generic[ModelType]):
         try:
             await self.db.commit()
             await self.db.refresh(db_obj)
+            stmt = select(self.model).filter(self.model.id == db_obj.id)
+            result = await self.db.execute(stmt)
+            db_obj = result.scalars().first()
             logger.debug(
                 f"{self.model.__name__} created successfully with ID: {db_obj.id}"
             )
@@ -28,23 +30,16 @@ class BaseRepository(Generic[ModelType]):
             logger.exception(f"Error creating {self.model.__name__}: {e}")
             raise
 
-    async def get_by_id(self, id: any) -> ModelType:
+    async def get_by_id(self, id: Union[int, UUID]) -> ModelType:
         logger.debug(f"Fetching {self.model.__name__} with ID: {id}")
-
-        logger.debug(f"Before conversion ID value: {id} (type: {type(id)})")
 
         if isinstance(id, UUID):
             logger.debug("ID is already a UUID, skipping conversion")
         elif isinstance(self.model.id.type.python_type, type):
-            logger.debug("Converting ID to correct type")
+            logger.debug(f"Converting ID to {self.model.id.type.python_type}")
             id = self.model.id.type.python_type(id)
 
-        logger.debug(f"After conversion ID value: {id} (type: {type(id)})")
-
         stmt = select(self.model).filter(self.model.id == id)
-
-        if hasattr(self.model, "recurrence"):
-            stmt = stmt.options(joinedload(self.model.recurrence))
 
         try:
             result = await self.db.execute(stmt)
@@ -63,10 +58,6 @@ class BaseRepository(Generic[ModelType]):
             f"Fetching all {self.model.__name__} with skip={skip}, limit={limit}"
         )
         stmt = select(self.model).offset(skip).limit(limit)
-
-        if hasattr(self.model, "recurrence"):
-            stmt = stmt.options(joinedload(self.model.recurrence))
-
         try:
             result = await self.db.execute(stmt)
             entities = result.unique().scalars().all()
@@ -79,9 +70,6 @@ class BaseRepository(Generic[ModelType]):
     async def get_by_field(self, field_name: str, value: Any) -> list[ModelType]:
         logger.debug(f"Fetching {self.model.__name__} by {field_name}={value}")
         stmt = select(self.model).filter(getattr(self.model, field_name) == value)
-
-        if hasattr(self.model, "recurrence"):
-            stmt = stmt.options(joinedload(self.model.recurrence))
 
         try:
             result = await self.db.execute(stmt)
