@@ -1,4 +1,12 @@
+from unittest.mock import AsyncMock
+
 import pytest
+from app.core.dependencies import (
+    get_meeting_service,
+    get_recurrence_service,
+    get_task_service,
+    get_user_service,
+)
 from app.db.db import get_db
 from app.db.models import Base
 from app.db.repositories import (
@@ -54,9 +62,25 @@ async def db_session():
 
 
 @pytest.fixture
-async def test_client(db_session):
+async def test_client(db_session, mock_redis_client):
     # Override the get_db dependency
     app.dependency_overrides[get_db] = lambda: db_session
+
+    app.dependency_overrides[get_meeting_service] = lambda: MeetingService(
+        MeetingRepository(db_session), mock_redis_client
+    )
+
+    app.dependency_overrides[get_recurrence_service] = lambda: RecurrenceService(
+        RecurrenceRepository(db_session), mock_redis_client
+    )
+
+    app.dependency_overrides[get_task_service] = lambda: TaskService(
+        TaskRepository(db_session), mock_redis_client
+    )
+
+    app.dependency_overrides[get_user_service] = lambda: UserService(
+        UserRepository(db_session), mock_redis_client
+    )
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://testserver"
@@ -65,28 +89,35 @@ async def test_client(db_session):
 
 
 @pytest.fixture
-async def meeting_service(db_session):
+async def mock_redis_client():
+    mock = AsyncMock()
+    mock.publish = AsyncMock()
+    return mock
+
+
+@pytest.fixture
+async def meeting_service(db_session, mock_redis_client):
     repo = MeetingRepository(db_session)
-    service = MeetingService(repo=repo)
+    service = MeetingService(repo, mock_redis_client)
     return service
 
 
 @pytest.fixture
-async def recurrence_service(db_session):
+async def recurrence_service(db_session, mock_redis_client):
     repo = RecurrenceRepository(db_session)
-    service = RecurrenceService(repo)
+    service = RecurrenceService(repo, mock_redis_client)
     return service
 
 
 @pytest.fixture
-async def task_service(db_session):
+async def task_service(db_session, mock_redis_client):
     repo = TaskRepository(db_session)
-    service = TaskService(repo)
+    service = TaskService(repo, mock_redis_client)
     return service
 
 
 @pytest.fixture
-async def user_service(db_session):
+async def user_service(db_session, mock_redis_client):
     repo = UserRepository(db_session)
-    service = UserService(repo)
+    service = UserService(repo, mock_redis_client)
     return service

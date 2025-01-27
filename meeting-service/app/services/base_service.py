@@ -3,6 +3,7 @@ from typing import Generic, TypeVar, Union
 from uuid import UUID
 
 from app.core.logging_config import logger
+from app.core.redis_client import RedisClient
 from app.db.repositories import BaseRepository
 from app.exceptions import NotFoundError
 from pydantic import BaseModel
@@ -14,10 +15,13 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(
-        self, repo: BaseRepository[ModelType], model_name: str = None, redis_client=None
+        self,
+        repo: BaseRepository[ModelType],
+        redis_client: RedisClient,
+        model_name: str,
     ):
         self.repo = repo
-        self.model_name = model_name or self._get_model_name()
+        self.model_name = self.repo.model.__name__
         self.redis_client = redis_client
 
     def _get_model_name(self) -> str:
@@ -31,6 +35,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         }
         channel = f"{self._get_model_name().lower()}-events"
         logger.info(f"Publishing event to channel {channel}: {event}")
+        logger.info(f"Redis client: {self.redis_client}")
         await self.redis_client.publish(channel, json.dumps(event, default=str))
 
     async def create(self, create_data: CreateSchemaType) -> ModelType:

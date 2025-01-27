@@ -21,6 +21,26 @@ class TaskService(BaseService[Task, TaskCreate, TaskUpdate]):
             raise NotFoundError(detail=f"Task with ID {task_id} not found")
         return TaskRetrieve.model_validate(task)
 
+    async def reassign_tasks_to_meeting(
+        self, source_meeting_id: int, target_meeting_id: int
+    ):
+        logger.info(
+            f"Reassigning tasks from M:{source_meeting_id} to M:{target_meeting_id}"
+        )
+
+        # Fetch incomplete tasks for the source meeting
+        tasks = await self.repo.get_incomplete_tasks_for_meeting(source_meeting_id)
+        if not tasks:
+            logger.info(f"No incomplete tasks for meeting ID {source_meeting_id}")
+            return
+
+        # Reassign tasks to the target meeting
+        task_ids = [task.id for task in tasks]
+        await self.repo.reassign_tasks_to_meeting(task_ids, target_meeting_id)
+        logger.info(
+            f"Reassigned {len(task_ids)} tasks to meeting ID {target_meeting_id}"
+        )
+
     async def create_new_meeting_task(
         self,
         meeting_id: int,

@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 meeting_data = {
@@ -107,8 +109,8 @@ async def test_create_meeting_with_recurrence_id(test_client):
 
 
 @pytest.mark.asyncio
-async def test_complete_meeting(test_client):
-    # Create a meeting
+async def test_complete_meeting(test_client, mock_redis_client):
+    # Create a meeting without recurrence
     response = await test_client.post(
         "/meetings/",
         json=meeting_data,
@@ -116,11 +118,49 @@ async def test_complete_meeting(test_client):
     meeting = response.json()
     meeting_id = meeting["id"]
 
-    # Complete the meeting
+    # Complete the meeting with validation error
+    response = await test_client.post(f"/meetings/{meeting_id}/complete/")
+    assert response.status_code == 400
+
+    recurrence_data = {
+        "title": "Annual Meeting",
+        "rrule": "FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0",
+    }
+    response = await test_client.post(
+        "/recurrences/",
+        json=recurrence_data,
+    )
+    recurrence = response.json()
+    assert recurrence["title"] == "Annual Meeting"
+    recurrence_id = recurrence["id"]
+
+    meeting_data["recurrence_id"] = recurrence_id
+    response = await test_client.post(
+        "/meetings/",
+        json=meeting_data,
+    )
+    meeting = response.json()
+    meeting_id = meeting["id"]
+
+    # Complete the meeting with no errors
     response = await test_client.post(f"/meetings/{meeting_id}/complete/")
     assert response.status_code == 200
 
-    # Get the meeting
+    mock_redis_client.publish.assert_awaited_with(
+        "meeting-events",
+        json.dumps(
+            {
+                "event_type": "complete",
+                "model": "Meeting",
+                "payload": {
+                    "meeting_id": meeting_id,
+                    "next_meeting_id": int(meeting_id) + 1,
+                },
+            }
+        ),
+    )
+
+    # Validate completion
     response = await test_client.get(f"/meetings/{meeting_id}")
     meeting = response.json()
     assert meeting["completed"] is True

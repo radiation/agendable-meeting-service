@@ -27,12 +27,23 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
 
     async def complete_meeting(self, meeting_id: int) -> MeetingRetrieve:
         logger.info(f"Completing meeting with ID: {meeting_id}")
-
-        # Fetch meeting using repository
         meeting = await self.repo.get_by_id(meeting_id)
         if not meeting:
             logger.warning(f"Meeting with ID {meeting_id} not found")
             raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
+
+        # Get the next meeting in the recurrence
+        next_meeting = await self.get_subsequent_meeting(meeting_id)
+        next_meeting_id = next_meeting.id if next_meeting else None
+
+        # Publish event with both source and target meeting IDs
+        await self._publish_event(
+            event_type="complete",
+            payload={
+                "meeting_id": meeting_id,
+                "next_meeting_id": next_meeting_id,
+            },
+        )
 
         # Mark meeting as complete
         meeting.completed = True

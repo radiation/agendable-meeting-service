@@ -4,7 +4,12 @@ from builtins import anext
 from contextlib import asynccontextmanager
 
 from app.api.routes import meeting_routes, recurrence_routes, task_routes, user_routes
-from app.core.dependencies import get_db, get_redis_client, get_user_service
+from app.core.dependencies import (
+    get_db,
+    get_redis_client,
+    get_task_service,
+    get_user_service,
+)
 from app.core.logging_config import logger
 from app.exceptions import (
     NotFoundError,
@@ -42,11 +47,14 @@ async def lifespan(app: FastAPI):
     redis_client = get_redis_client()
 
     user_service = get_user_service(db=db_session, redis=redis_client)
+    task_service = get_task_service(db=db_session, redis=redis_client)
 
-    subscriber = RedisSubscriber(redis_client=redis_client, user_service=user_service)
+    subscriber = RedisSubscriber(
+        redis_client=redis_client, task_service=task_service, user_service=user_service
+    )
 
     app.state.redis_subscriber_task = asyncio.create_task(
-        subscriber.listen_to_events("user-events")
+        subscriber.listen_to_events(["user-events", "meeting-events"])
     )
 
     yield
