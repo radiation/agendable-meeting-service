@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from app.core.logging_config import logger
@@ -68,6 +68,8 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
             raise ValidationError(
                 detail=f"Meeting {meeting_id} does not have a recurrence set"
             )
+
+        after_date = meeting.start_date + timedelta(minutes=meeting.duration)
 
         # Fetch subsequent meetings
         next_meeting = await self.repo.get_future_meetings(

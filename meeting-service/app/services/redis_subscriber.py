@@ -17,7 +17,7 @@ class RedisSubscriber:
     async def listen_to_events(self, channels: list[str]):
         try:
             pubsub = self.redis_client.pubsub()
-            await pubsub.subscribe(channels)
+            await pubsub.subscribe(*channels)
             logger.info(f"Subscribed to {channels} channel.")
 
             async for message in pubsub.listen():
