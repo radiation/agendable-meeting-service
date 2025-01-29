@@ -1,22 +1,12 @@
-import uuid
-
 import pytest
-
-user_data = {
-    "id": str(uuid.uuid4()),
-    "email": "test@example.com",
-    "first_name": "Test",
-    "last_name": "User",
-}
-
-updated_user_data = {
-    "first_name": "Updated",
-    "last_name": "Name",
-}
+from tests.factories import UserFactory
 
 
 @pytest.mark.asyncio
 async def test_user_router_lifecycle(test_client):
+    user_data = UserFactory.as_dict()
+    updated_user_data = UserFactory.as_dict(first_name="Updated", last_name="User")
+
     # Create a user
     response = await test_client.post(
         "/meeting_users/",

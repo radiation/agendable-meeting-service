@@ -1,50 +1,49 @@
 import pytest
-from app.db.models import Recurrence
-from app.db.repositories import RecurrenceRepository
-from app.schemas import RecurrenceCreate, RecurrenceUpdate
+from app.exceptions import NotFoundError
+from app.schemas import RecurrenceUpdate
+from tests.factories import RecurrenceCreateFactory
 
 
 @pytest.mark.asyncio
-async def test_create_recurrence_service(recurrence_service, db_session):
-    new_recurrence = RecurrenceCreate(
-        title="Service Test Recurrence", rrule="FREQ=DAILY;INTERVAL=1"
+async def test_create_recurrence_service(recurrence_service):
+    recurrence_create_factory = RecurrenceCreateFactory.build()
+    created_recurrence = await recurrence_service.create(recurrence_create_factory)
+    assert created_recurrence.title == recurrence_create_factory.title
+    assert created_recurrence.rrule == recurrence_create_factory.rrule
+
+
+@pytest.mark.asyncio
+async def test_get_recurrence_service(recurrence_service):
+    recurrence_create_factory = RecurrenceCreateFactory.build()
+    created_recurrence = await recurrence_service.create(recurrence_create_factory)
+
+    retrieved_recurrence = await recurrence_service.get_by_id(created_recurrence.id)
+    assert retrieved_recurrence.title == recurrence_create_factory.title
+    assert retrieved_recurrence.rrule == recurrence_create_factory.rrule
+
+
+@pytest.mark.asyncio
+async def test_update_recurrence_service(recurrence_service):
+    recurrence_create_factory = RecurrenceCreateFactory.build()
+    created_recurrence = await recurrence_service.create(recurrence_create_factory)
+
+    updated_recurrence = RecurrenceUpdate(
+        title="Updated Test Recurrence", rrule="FREQ=WEEKLY;INTERVAL=2"
     )
-    created = await recurrence_service.create(new_recurrence)
-    assert created.title == "Service Test Recurrence"
-    assert created.rrule == "FREQ=DAILY;INTERVAL=1"
 
-
-@pytest.mark.asyncio
-async def test_get_recurrence_service(recurrence_service, db_session):
-    recurrence = Recurrence(title="Test Recurrence", rrule="FREQ=DAILY;INTERVAL=1")
-    db_session.add(recurrence)
-    await db_session.commit()
-
-    retrieved = await recurrence_service.get_by_id(recurrence.id)
-    assert retrieved.id == recurrence.id
-    assert retrieved.title == "Test Recurrence"
-
-
-@pytest.mark.asyncio
-async def test_update_recurrence_service(recurrence_service, db_session):
-    recurrence = Recurrence(title="Test Recurrence", rrule="FREQ=DAILY;INTERVAL=1")
-    db_session.add(recurrence)
-    await db_session.commit()
-
-    updated_data = RecurrenceUpdate(
-        title="Updated Recurrence", rrule="FREQ=WEEKLY;BYDAY=MO"
+    updated_recurrence = await recurrence_service.update(
+        created_recurrence.id, updated_recurrence
     )
-    updated = await recurrence_service.update(recurrence.id, updated_data)
-    assert updated.title == "Updated Recurrence"
-    assert updated.rrule == "FREQ=WEEKLY;BYDAY=MO"
+    assert updated_recurrence.title == updated_recurrence.title
+    assert updated_recurrence.rrule == updated_recurrence.rrule
 
 
 @pytest.mark.asyncio
-async def test_delete_recurrence_service(recurrence_service, db_session):
-    new_recurrence = Recurrence(title="Test Recurrence", rrule="FREQ=DAILY;INTERVAL=1")
-    db_session.add(new_recurrence)
-    await db_session.commit()
+async def test_delete_recurrence_service(recurrence_service):
+    recurrence_create_factory = RecurrenceCreateFactory.build()
+    created_recurrence = await recurrence_service.create(recurrence_create_factory)
 
-    await recurrence_service.delete(new_recurrence.id)
-    deleted = await RecurrenceRepository(db_session).get_by_id(new_recurrence.id)
-    assert deleted is None
+    await recurrence_service.delete(created_recurrence.id)
+
+    with pytest.raises(NotFoundError):
+        await recurrence_service.get_by_id(created_recurrence.id)

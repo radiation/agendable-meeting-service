@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from tests.factories.meeting_factory import MeetingFactory
+from tests.factories import MeetingFactory
 
 
 @pytest.mark.asyncio

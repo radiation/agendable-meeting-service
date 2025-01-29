@@ -20,3 +20,4 @@ python-dateutil
 redis
 httpx
 loguru
+factory_boy
