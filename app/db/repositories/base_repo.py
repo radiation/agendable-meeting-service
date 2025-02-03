@@ -51,7 +51,9 @@ class BaseRepository(Generic[ModelType]):
                 logger.debug(f"Retrieved {self.model.__name__}: {entity}")
             return entity
         except Exception as e:
-            logger.exception(f"Error fetching {self.model.__name__} with ID {object_id}: {e}")
+            logger.exception(
+                f"Error fetching {self.model.__name__} with ID {object_id}: {e}"
+            )
             raise
 
     async def get_all(self, skip: int = 0, limit: int = 10) -> list[ModelType]:
@@ -111,8 +113,12 @@ class BaseRepository(Generic[ModelType]):
         try:
             await self.db.delete(obj)
             await self.db.commit()
-            logger.debug(f"{self.model.__name__} with ID {object_id} deleted successfully")
+            logger.debug(
+                f"{self.model.__name__} with ID {object_id} deleted successfully"
+            )
             return True
         except Exception as exc:
-            logger.exception(f"Error deleting {self.model.__name__} with ID {object_id}: {exc}")
+            logger.exception(
+                f"Error deleting {self.model.__name__} with ID {object_id}: {exc}"
+            )
             raise

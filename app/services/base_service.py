@@ -15,11 +15,7 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(
-        self,
-        repo: BaseRepository[ModelType],
-        redis_client: RedisClient
-    ):
+    def __init__(self, repo: BaseRepository[ModelType], redis_client: RedisClient):
         self.repo = repo
         self.model_name = self.repo.model.__name__
         self.redis_client = redis_client
@@ -46,11 +42,15 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result
 
     async def get_by_id(self, object_id: Union[UUID, int]) -> ModelType:
-        logger.info(f"Fetching {self.model_name} with ID: {object_id} (type: {type(object_id)})")
+        logger.info(
+            f"Fetching {self.model_name} with ID: {object_id} (type: {type(object_id)})"
+        )
         entity = await self.repo.get_by_id(object_id)
         if not entity:
             logger.warning(f"{self.model_name} with ID {object_id} not found")
-            raise NotFoundError(detail=f"{self.model_name} with ID {object_id} not found")
+            raise NotFoundError(
+                detail=f"{self.model_name} with ID {object_id} not found"
+            )
         logger.info(f"{self.model_name} retrieved: {entity}")
         return entity
 
@@ -79,7 +79,9 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         entity = await self.repo.get_by_id(object_id)
         if not entity:
             logger.warning(f"{self.model_name} with ID {object_id} not found")
-            raise NotFoundError(detail=f"{self.model_name} with ID {object_id} not found")
+            raise NotFoundError(
+                detail=f"{self.model_name} with ID {object_id} not found"
+            )
         update_dict = update_data.model_dump(exclude_unset=True)
         for key, value in update_dict.items():
             setattr(entity, key, value)
@@ -88,11 +90,15 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return updated_entity
 
     async def delete(self, object_id: Union[UUID, int]) -> bool:
-        logger.info(f"Deleting {self.model_name} with ID: {object_id} (type: {type(object_id)})")
+        logger.info(
+            f"Deleting {self.model_name} with ID: {object_id} (type: {type(object_id)})"
+        )
         entity = await self.repo.get_by_id(object_id)
         if not entity:
             logger.warning(f"{self.model_name} with ID {object_id} not found")
-            raise NotFoundError(detail=f"{self.model_name} with ID {object_id} not found")
+            raise NotFoundError(
+                detail=f"{self.model_name} with ID {object_id} not found"
+            )
         success = await self.repo.delete(object_id)
         if success:
             logger.info(f"{self.model_name} with ID {object_id} deleted successfully")

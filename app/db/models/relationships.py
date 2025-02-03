@@ -15,7 +15,9 @@ meeting_tasks = Table(
     Column(
         "task_id", Integer, ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True
     ),
-    Column("created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
+    ),
 )
 
 meeting_users = Table(
@@ -33,5 +35,7 @@ meeting_users = Table(
         ForeignKey("users.id", ondelete="CASCADE"),
         primary_key=True,
     ),
-    Column("created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
+    ),
 )

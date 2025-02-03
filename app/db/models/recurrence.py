@@ -20,6 +20,7 @@ class Recurrence(Base):
     FREQ=MONTHLY;BYMONTHDAY=15;BYHOUR=9;BYMINUTE=0
     FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0
     """
+
     __tablename__ = "recurrences"
     __table_args__ = (
         Index("ix_recurrence_rrule", "rrule"),
