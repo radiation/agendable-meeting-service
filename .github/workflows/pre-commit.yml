@@ -17,9 +17,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.12
-      - name: Install dependencies from all services
+      - name: Install dependencies
         run: |
-          pip install -r meeting-service/requirements.txt
-          pip install -r user-service/requirements.txt
+          pip install -r requirements.txt
       - name: Run pre-commit
         run: pre-commit run --all-files

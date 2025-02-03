@@ -6,24 +6,30 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 
--   repo: https://github.com/psf/black
-    rev: 22.10.0
-    hooks:
-    -   id: black
-
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.263
+    rev: v0.1.7
     hooks:
     -   id: ruff
         args: [--fix]
-        additional_dependencies: []
+    -   id: ruff-format
 
 -   repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.10.1
     hooks:
     -   id: isort
-        name: isort
-        entry: isort
-        language: python
-        types: [python]
-        language_version: python3.12
+
+# Disable pylint checks:
+# C0103 (invalid-name)
+# C0114 (missing-module-docstring)
+# C0115 (missing-class-docstring)
+# C0116 (missing-function-docstring)
+# E0013 (bad-continuation)
+# R0903 (too-few-public-methods)
+# W0511 (fixme)
+-   repo: https://github.com/PyCQA/pylint
+    rev: v3.0.3
+    hooks:
+    -   id: pylint
+        language: system
+        args: ["--disable=C0103,C0114,C0115,C0116,E0013,R0903,W0511"]
+        exclude: "alembic/.*"

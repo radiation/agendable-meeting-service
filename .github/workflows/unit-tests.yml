@@ -1,4 +1,4 @@
-name: Multi-Service Test Workflow
+name: FastAPI Unit Test Workflow
 
 on:
   push:
@@ -14,16 +14,8 @@ env:
 jobs:
   test-service:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service:
-          - meeting-service
-          - user-service
-    defaults:
-      run:
-        working-directory: ${{ matrix.service }}
     env:
-      PYTHONPATH: ${{ github.workspace }}/${{ matrix.service }}
+      PYTHONPATH: ${{ github.workspace }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
     steps:
     - uses: actions/checkout@v2
@@ -42,6 +34,6 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
-        flags: ${{ matrix.service }}-unittests
+        flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
