@@ -10,7 +10,7 @@ aiosqlite
 alembic
 psycopg2-binary
 pre-commit
-black
+pylint
 isort
 ruff
 pytest
