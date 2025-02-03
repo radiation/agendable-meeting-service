@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 from uuid import UUID
 
 from app.core.logging_config import logger
-from app.db.models import Meeting
-from app.db.repositories import MeetingRepository
+from app.db.models.meeting import Meeting
+from app.db.repositories.meeting_repo import MeetingRepository
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas import MeetingCreate, MeetingRetrieve, MeetingUpdate
+from app.schemas.meeting_schemas import MeetingCreate, MeetingRetrieve, MeetingUpdate
 from app.services import BaseService
 
 
@@ -15,7 +15,7 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
         repo: MeetingRepository,
         redis_client=None,
     ):
-        super().__init__(repo, model_name="Meeting", redis_client=redis_client)
+        super().__init__(repo, redis_client=redis_client)
 
     async def get_meetings_by_user_id(
         self, user_id: int, skip: int = 0, limit: int = 10

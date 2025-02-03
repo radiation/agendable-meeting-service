@@ -1,9 +1,16 @@
-import uuid
 from datetime import datetime
+import uuid
 
 import factory
-from app.db.models import Meeting, Recurrence, Task, User
-from app.schemas import MeetingCreate, RecurrenceCreate, TaskCreate, UserCreate
+
+from app.db.models.meeting import Meeting
+from app.db.models.recurrence import Recurrence
+from app.db.models.task import Task
+from app.db.models.user import User
+from app.schemas.meeting_schemas import MeetingCreate
+from app.schemas.recurrence_schemas import RecurrenceCreate
+from app.schemas.task_schemas import TaskCreate
+from app.schemas.user_schemas import UserCreate
 
 
 class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -33,7 +40,7 @@ class MeetingFactory(BaseFactory):
 
     id = factory.Sequence(lambda n: n + 1)
     title = factory.Faker("sentence", nb_words=3)
-    start_date = factory.LazyFunction(lambda: datetime.now())
+    start_date = factory.LazyFunction(staticmethod(datetime.now))
     duration = factory.Faker("random_int", min=15, max=120)
     location = factory.Faker("address")
     notes = factory.Faker("text")
@@ -47,7 +54,7 @@ class MeetingCreateFactory(factory.Factory):
         model = MeetingCreate
 
     title = factory.Faker("sentence", nb_words=3)
-    start_date = factory.LazyFunction(lambda: datetime.now())
+    start_date = factory.LazyFunction(staticmethod(datetime.now))
     duration = factory.Faker("random_int", min=15, max=120)
 
 

@@ -1,8 +1,9 @@
 import uuid
 
 import pytest
-from app.db.models import User
-from app.db.repositories import UserRepository
+
+from app.db.models.user import User
+from app.db.repositories.user_repo import UserRepository
 from tests.factories import UserFactory
 
 

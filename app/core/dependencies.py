@@ -1,14 +1,16 @@
-from app.core.redis_client import redis_client
-from app.db.db import get_db
-from app.db.repositories import (
-    MeetingRepository,
-    RecurrenceRepository,
-    TaskRepository,
-    UserRepository,
-)
-from app.services import MeetingService, RecurrenceService, TaskService, UserService
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.redis_client import redis_client
+from app.db.db import get_db
+from app.db.repositories.meeting_repo import MeetingRepository
+from app.db.repositories.recurrence_repo import RecurrenceRepository
+from app.db.repositories.task_repo import TaskRepository
+from app.db.repositories.user_repo import UserRepository
+from app.services.meeting_service import MeetingService
+from app.services.recurrence_service import RecurrenceService
+from app.services.task_service import TaskService
+from app.services.user_service import UserService
 
 
 def get_redis_client():

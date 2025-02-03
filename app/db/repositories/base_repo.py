@@ -1,9 +1,10 @@
 from typing import Any, Generic, Type, TypeVar, Union
 from uuid import UUID
 
-from app.core.logging_config import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
+from app.core.logging_config import logger
 
 ModelType = TypeVar("ModelType")
 
@@ -30,27 +31,27 @@ class BaseRepository(Generic[ModelType]):
             logger.exception(f"Error creating {self.model.__name__}: {e}")
             raise
 
-    async def get_by_id(self, id: Union[int, UUID]) -> ModelType:
-        logger.debug(f"Fetching {self.model.__name__} with ID: {id}")
+    async def get_by_id(self, object_id: Union[int, UUID]) -> ModelType:
+        logger.debug(f"Fetching {self.model.__name__} with ID: {object_id}")
 
-        if isinstance(id, UUID):
+        if isinstance(object_id, UUID):
             logger.debug("ID is already a UUID, skipping conversion")
         elif isinstance(self.model.id.type.python_type, type):
             logger.debug(f"Converting ID to {self.model.id.type.python_type}")
-            id = self.model.id.type.python_type(id)
+            object_id = self.model.id.type.python_type(object_id)
 
-        stmt = select(self.model).filter(self.model.id == id)
+        stmt = select(self.model).filter(self.model.id == object_id)
 
         try:
             result = await self.db.execute(stmt)
             entity = result.unique().scalar()
             if not entity:
-                logger.warning(f"{self.model.__name__} with ID {id} not found")
+                logger.warning(f"{self.model.__name__} with ID {object_id} not found")
             else:
                 logger.debug(f"Retrieved {self.model.__name__}: {entity}")
             return entity
         except Exception as e:
-            logger.exception(f"Error fetching {self.model.__name__} with ID {id}: {e}")
+            logger.exception(f"Error fetching {self.model.__name__} with ID {object_id}: {e}")
             raise
 
     async def get_all(self, skip: int = 0, limit: int = 10) -> list[ModelType]:
@@ -101,17 +102,17 @@ class BaseRepository(Generic[ModelType]):
             )
             raise
 
-    async def delete(self, id: int) -> bool:
-        logger.debug(f"Deleting {self.model.__name__} with ID: {id}")
-        obj = await self.get_by_id(id)
+    async def delete(self, object_id: int) -> bool:
+        logger.debug(f"Deleting {self.model.__name__} with ID: {object_id}")
+        obj = await self.get_by_id(object_id)
         if not obj:
-            logger.warning(f"{self.model.__name__} with ID {id} not found")
+            logger.warning(f"{self.model.__name__} with ID {object_id} not found")
             return False
         try:
             await self.db.delete(obj)
             await self.db.commit()
-            logger.debug(f"{self.model.__name__} with ID {id} deleted successfully")
+            logger.debug(f"{self.model.__name__} with ID {object_id} deleted successfully")
             return True
-        except Exception as e:
-            logger.exception(f"Error deleting {self.model.__name__} with ID {id}: {e}")
+        except Exception as exc:
+            logger.exception(f"Error deleting {self.model.__name__} with ID {object_id}: {exc}")
             raise

@@ -1,37 +1,30 @@
+from fastapi import APIRouter, Depends
+
 from app.core.decorators import log_execution_time
 from app.core.dependencies import get_meeting_service
 from app.core.logging_config import logger
-from app.exceptions import NotFoundError, ValidationError
-from app.schemas import (
-    AddUsersRequest,
+from app.exceptions import NotFoundError, handle_service_exceptions
+from app.schemas.meeting_schemas import (
     MeetingCreate,
     MeetingCreateBatch,
     MeetingRetrieve,
     MeetingUpdate,
 )
-from app.services import MeetingService
-from fastapi import APIRouter, Depends
+from app.schemas.user_schemas import AddUsersRequest
+from app.services.meeting_service import MeetingService
 
 router = APIRouter()
 
 
 @router.post("/", response_model=MeetingRetrieve)
+@handle_service_exceptions
 @log_execution_time
 async def create_meeting(
     meeting: MeetingCreate,
     service: MeetingService = Depends(get_meeting_service),
 ) -> MeetingRetrieve:
     logger.info(f"Creating meeting with data: {meeting.model_dump()}")
-    try:
-        result = await service.create(meeting)
-        logger.info(f"Meeting created successfully with ID: {result.id}")
-        return result
-    except ValidationError as ve:
-        logger.warning(f"Validation error: {ve}")
-        raise
-    except Exception:
-        logger.exception("Unexpected error while creating meeting:")
-        raise ValidationError(detail="An unexpected error occurred. Please try again.")
+    return await service.create(meeting)
 
 
 @router.get("/", response_model=list[MeetingRetrieve])
@@ -140,12 +133,12 @@ async def next_meeting(
     service: MeetingService = Depends(get_meeting_service),
 ) -> MeetingRetrieve:
     logger.info(f"Fetching next meeting after meeting with ID: {meeting_id}")
-    next_meeting = await service.get_subsequent_meeting(meeting_id)
-    if not next_meeting:
+    next_meeting_instance = await service.get_subsequent_meeting(meeting_id)
+    if not next_meeting_instance:
         logger.warning(f"Next meeting after ID {meeting_id} not found")
         raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
-    logger.info(f"Next meeting retrieved: {next_meeting}")
-    return next_meeting
+    logger.info(f"Next meeting retrieved: {next_meeting_instance}")
+    return next_meeting_instance
 
 
 @router.post("/{meeting_id}/users/")

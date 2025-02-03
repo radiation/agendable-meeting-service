@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from app.schemas.recurrence_schemas import RecurrenceRetrieve
 from pydantic import BaseModel, ConfigDict
+
+from app.schemas.recurrence_schemas import RecurrenceRetrieve
 
 
 class MeetingBase(BaseModel):

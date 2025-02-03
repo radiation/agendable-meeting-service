@@ -1,17 +1,18 @@
-from datetime import datetime
-
 from app.core.logging_config import logger
-from app.db.models import Task
-from app.db.repositories import TaskRepository
+from app.db.models.task import Task
+from app.db.repositories.task_repo import TaskRepository
 from app.exceptions import NotFoundError
-from app.schemas import TaskCreate, TaskRetrieve, TaskUpdate
+from app.schemas.task_schemas import TaskCreate, TaskRetrieve, TaskUpdate
 from app.services import BaseService
-from sqlalchemy.exc import NoResultFound
 
 
 class TaskService(BaseService[Task, TaskCreate, TaskUpdate]):
-    def __init__(self, repo: TaskRepository, redis_client=None):
-        super().__init__(repo, model_name="Task", redis_client=redis_client)
+    def __init__(
+        self,
+        repo: TaskRepository,
+        redis_client=None,
+    ):
+        super().__init__(repo, redis_client=redis_client)
 
     async def mark_task_complete(self, task_id: int) -> TaskRetrieve:
         logger.info(f"Marking task with ID {task_id} as complete")
@@ -40,32 +41,3 @@ class TaskService(BaseService[Task, TaskCreate, TaskUpdate]):
         logger.info(
             f"Reassigned {len(task_ids)} tasks to meeting ID {target_meeting_id}"
         )
-
-    async def create_new_meeting_task(
-        self,
-        meeting_id: int,
-        task_title: str,
-        assignee_id: int,
-        due_date: datetime = None,
-    ) -> TaskRetrieve:
-        try:
-            meeting = await self.meeting_repo.get_by_id(meeting_id)
-            if not meeting:
-                raise ValueError(f"Meeting with ID {meeting_id} not found.")
-        except NoResultFound:
-            raise ValueError(f"Meeting with ID {meeting_id} not found.")
-
-        task_data = {
-            "title": task_title,
-            "assignee_id": assignee_id,
-            "due_date": due_date,
-        }
-        new_task = await self.task_repo.create(task_data)
-
-        # TODO: Move this to repo layer
-        meeting.tasks.append(new_task)
-
-        await self.db.commit()
-        await self.db.refresh(new_task)
-
-        return new_task

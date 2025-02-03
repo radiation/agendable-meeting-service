@@ -1,5 +1,6 @@
 import pytest
-from app.db.repositories import RecurrenceRepository
+
+from app.db.repositories.recurrence_repo import RecurrenceRepository
 from tests.factories import RecurrenceFactory
 
 

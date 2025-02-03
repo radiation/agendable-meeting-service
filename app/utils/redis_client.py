@@ -1,15 +1,15 @@
 import os
 
-import redis.asyncio as redis
 from dotenv import load_dotenv
+import redis.asyncio as redis
 
 # Load environment variables from .env
 load_dotenv()
 
 # Retrieve Redis connection details
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", 6379)
-REDIS_DB = os.getenv("REDIS_DB", 0)
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_DB = os.getenv("REDIS_DB", "0")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
 
 redis_url = (

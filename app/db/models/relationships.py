@@ -1,6 +1,5 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table, text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql import func
 
 from . import Base
 
@@ -16,7 +15,7 @@ meeting_tasks = Table(
     Column(
         "task_id", Integer, ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True
     ),
-    Column("created_at", DateTime(timezone=True), server_default=func.now()),
+    Column("created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")),
 )
 
 meeting_users = Table(
@@ -34,5 +33,5 @@ meeting_users = Table(
         ForeignKey("users.id", ondelete="CASCADE"),
         primary_key=True,
     ),
-    Column("created_at", DateTime(timezone=True), server_default=func.now()),
+    Column("created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")),
 )

@@ -1,6 +1,7 @@
 import pytest
+
 from app.exceptions import NotFoundError
-from app.schemas import MeetingUpdate
+from app.schemas.meeting_schemas import MeetingUpdate
 from tests.factories import MeetingCreateFactory
 
 

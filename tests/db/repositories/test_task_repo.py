@@ -1,5 +1,6 @@
 import pytest
-from app.db.repositories import TaskRepository
+
+from app.db.repositories.task_repo import TaskRepository
 from tests.factories import TaskFactory
 
 

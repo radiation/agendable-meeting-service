@@ -1,6 +1,8 @@
 import pytest
-from app.db.models import Meeting, Recurrence
-from app.db.repositories import MeetingRepository
+
+from app.db.models.meeting import Meeting
+from app.db.models.recurrence import Recurrence
+from app.db.repositories.meeting_repo import MeetingRepository
 from tests.factories import MeetingFactory
 
 

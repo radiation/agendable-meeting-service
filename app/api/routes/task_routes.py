@@ -1,30 +1,23 @@
+from fastapi import APIRouter, Depends
+
 from app.core.decorators import log_execution_time
 from app.core.dependencies import get_task_service
 from app.core.logging_config import logger
-from app.exceptions import NotFoundError, ValidationError
-from app.schemas import TaskCreate, TaskRetrieve, TaskUpdate
-from app.services import TaskService
-from fastapi import APIRouter, Depends
+from app.exceptions import NotFoundError, handle_service_exceptions
+from app.schemas.task_schemas import TaskCreate, TaskRetrieve, TaskUpdate
+from app.services.task_service import TaskService
 
 router = APIRouter()
 
 
 @router.post("/", response_model=TaskRetrieve)
+@handle_service_exceptions
 @log_execution_time
 async def create_task(
     task: TaskCreate, service: TaskService = Depends(get_task_service)
 ) -> TaskRetrieve:
-    try:
-        logger.info(f"Creating task with data: {task.model_dump()}")
-        result = await service.create(task)
-        logger.info(f"Task created successfully with ID: {result.id}")
-        return result
-    except ValidationError as ve:
-        logger.warning(f"Validation error: {ve}")
-        raise
-    except Exception:
-        logger.exception("Unexpected error while creating task")
-        raise ValidationError("An unexpected error occurred. Please try again.")
+    logger.info(f"Creating task with data: {task.model_dump()}")
+    return await service.create(task)
 
 
 @router.get("/", response_model=list[TaskRetrieve])

@@ -12,12 +12,12 @@ class RecurrenceBase(BaseModel):
 
 class RecurrenceCreate(RecurrenceBase):
     @field_validator("rrule")
-    def validate_rrule(cls, value):
+    def validate_rrule(cls, value):  # pylint: disable=no-self-argument
+        """Validate the rrule string."""
         try:
-            # Attempt to parse the rule to ensure its validity
             rrulestr(value, dtstart=datetime.datetime.now())
-        except (ValueError, TypeError) as e:
-            raise ValueError(f"Invalid recurrence rule: {str(e)}")
+        except (ValueError, TypeError) as exc:
+            raise ValueError(f"Invalid recurrence rule: {str(exc)}") from exc
         return value
 
 

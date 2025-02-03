@@ -1,10 +1,12 @@
 from datetime import datetime
 
-from app.core.logging_config import logger
-from app.db.models import Task, meeting_tasks
-from app.db.repositories import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
+from app.core.logging_config import logger
+from app.db.models.relationships import meeting_tasks
+from app.db.models.task import Task
+from app.db.repositories import BaseRepository
 
 
 class TaskRepository(BaseRepository[Task]):

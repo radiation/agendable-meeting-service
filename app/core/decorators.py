@@ -1,5 +1,5 @@
-import time
 from functools import wraps
+import time
 
 from loguru import logger
 

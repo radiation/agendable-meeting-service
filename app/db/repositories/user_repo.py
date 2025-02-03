@@ -1,8 +1,9 @@
-from app.core.logging_config import logger
-from app.db.models import User
-from app.db.repositories.base_repo import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
+from app.core.logging_config import logger
+from app.db.models.user import User
+from app.db.repositories.base_repo import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):
@@ -33,9 +34,9 @@ class UserRepository(BaseRepository[User]):
             self.model.meeting_id == meeting_id, self.model.user_id == user_id
         )
         result = await self.db.execute(stmt)
-        User = result.scalars().first()
-        if not User:
+        user = result.scalars().first()
+        if not user:
             logger.warning(
                 f"No user found for meeting ID {meeting_id} and user ID {user_id}"
             )
-        return User
+        return user

@@ -2,11 +2,12 @@ import json
 from typing import Generic, TypeVar, Union
 from uuid import UUID
 
+from pydantic import BaseModel
+
 from app.core.logging_config import logger
 from app.core.redis_client import RedisClient
 from app.db.repositories import BaseRepository
 from app.exceptions import NotFoundError
-from pydantic import BaseModel
 
 ModelType = TypeVar("ModelType")
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -17,8 +18,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(
         self,
         repo: BaseRepository[ModelType],
-        redis_client: RedisClient,
-        model_name: str,
+        redis_client: RedisClient
     ):
         self.repo = repo
         self.model_name = self.repo.model.__name__
@@ -45,12 +45,12 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         logger.info(f"{self.model_name} created successfully with ID: {result.id}")
         return result
 
-    async def get_by_id(self, id: Union[UUID, int]) -> ModelType:
-        logger.info(f"Fetching {self.model_name} with ID: {id} (type: {type(id)})")
-        entity = await self.repo.get_by_id(id)
+    async def get_by_id(self, object_id: Union[UUID, int]) -> ModelType:
+        logger.info(f"Fetching {self.model_name} with ID: {object_id} (type: {type(object_id)})")
+        entity = await self.repo.get_by_id(object_id)
         if not entity:
-            logger.warning(f"{self.model_name} with ID {id} not found")
-            raise NotFoundError(detail=f"{self.model_name} with ID {id} not found")
+            logger.warning(f"{self.model_name} with ID {object_id} not found")
+            raise NotFoundError(detail=f"{self.model_name} with ID {object_id} not found")
         logger.info(f"{self.model_name} retrieved: {entity}")
         return entity
 
@@ -70,32 +70,32 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result
 
     async def update(
-        self, id: Union[UUID, int], update_data: UpdateSchemaType
+        self, object_id: Union[UUID, int], update_data: UpdateSchemaType
     ) -> ModelType:
         logger.info(
             f"Updating {self.model_name} with ID: \
                 {id} and data: {update_data.model_dump()}"
         )
-        entity = await self.repo.get_by_id(id)
+        entity = await self.repo.get_by_id(object_id)
         if not entity:
-            logger.warning(f"{self.model_name} with ID {id} not found")
-            raise NotFoundError(detail=f"{self.model_name} with ID {id} not found")
+            logger.warning(f"{self.model_name} with ID {object_id} not found")
+            raise NotFoundError(detail=f"{self.model_name} with ID {object_id} not found")
         update_dict = update_data.model_dump(exclude_unset=True)
         for key, value in update_dict.items():
             setattr(entity, key, value)
         updated_entity = await self.repo.update(entity)
-        logger.info(f"{self.model_name} with ID {id} updated successfully")
+        logger.info(f"{self.model_name} with ID {object_id} updated successfully")
         return updated_entity
 
-    async def delete(self, id: Union[UUID, int]) -> bool:
-        logger.info(f"Deleting {self.model_name} with ID: {id} (type: {type(id)})")
-        entity = await self.repo.get_by_id(id)
+    async def delete(self, object_id: Union[UUID, int]) -> bool:
+        logger.info(f"Deleting {self.model_name} with ID: {object_id} (type: {type(object_id)})")
+        entity = await self.repo.get_by_id(object_id)
         if not entity:
-            logger.warning(f"{self.model_name} with ID {id} not found")
-            raise NotFoundError(detail=f"{self.model_name} with ID {id} not found")
-        success = await self.repo.delete(id)
+            logger.warning(f"{self.model_name} with ID {object_id} not found")
+            raise NotFoundError(detail=f"{self.model_name} with ID {object_id} not found")
+        success = await self.repo.delete(object_id)
         if success:
-            logger.info(f"{self.model_name} with ID {id} deleted successfully")
+            logger.info(f"{self.model_name} with ID {object_id} deleted successfully")
         else:
-            logger.error(f"Failed to delete {self.model_name} with ID {id}")
+            logger.error(f"Failed to delete {self.model_name} with ID {object_id}")
         return success

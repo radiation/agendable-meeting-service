@@ -1,6 +1,7 @@
 import pytest
+
 from app.exceptions import NotFoundError
-from app.schemas import UserUpdate
+from app.schemas.user_schemas import UserUpdate
 from tests.factories import UserCreateFactory
 
 
