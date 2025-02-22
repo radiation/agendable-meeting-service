@@ -52,9 +52,7 @@ class MeetingService(BaseService[Meeting, MeetingCreate, MeetingUpdate]):
 
         return MeetingRetrieve.model_validate(meeting)
 
-    async def get_subsequent_meeting(
-        self, meeting_id: int, after_date: datetime = datetime.now()
-    ) -> MeetingRetrieve:
+    async def get_subsequent_meeting(self, meeting_id: int) -> MeetingRetrieve:
         logger.info(f"Fetching subsequent meeting for meeting with ID: {meeting_id}")
 
         # Fetch meeting and validate

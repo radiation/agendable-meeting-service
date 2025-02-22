@@ -5,13 +5,11 @@ FROM python:${PYTHON_VERSION}-slim
 # Set the working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system & python dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev gcc g++ build-essential && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install uv first
-RUN pip install uv
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    pip install uv
 
 # Copy the project files before installing dependencies (to leverage Docker caching)
 COPY pyproject.toml uv.lock ./

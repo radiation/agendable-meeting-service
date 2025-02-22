@@ -15,6 +15,11 @@ from app.services.recurrence_service import RecurrenceService
 router = APIRouter()
 
 
+def recurrence_not_found(recurrence_id: int):
+    logger.warning(f"Meeting recurrence with ID {recurrence_id} not found")
+    raise NotFoundError(detail="Meeting recurrence not found")
+
+
 # Create a new meeting recurrence
 @router.post("/", response_model=RecurrenceRetrieve)
 @handle_service_exceptions
@@ -53,9 +58,8 @@ async def get_recurrence(
 ) -> RecurrenceRetrieve:
     logger.info(f"Fetching meeting recurrence with ID: {recurrence_id}")
     result = await service.get_by_id(recurrence_id)
-    if result is None:
-        logger.warning(f"Meeting recurrence with ID {recurrence_id} not found")
-        raise NotFoundError(detail="Meeting recurrence not found")
+    if not result:
+        recurrence_not_found(recurrence_id)
     logger.info(f"Meeting recurrence retrieved: {result}")
     return result
 
@@ -76,9 +80,8 @@ async def update_recurrence(
             with data: {recurrence.model_dump()}"
     )
     result = await service.update(recurrence_id, recurrence)
-    if result is None:
-        logger.warning(f"Meeting recurrence with ID {recurrence_id} not found")
-        raise NotFoundError(detail="Meeting recurrence not found")
+    if not result:
+        recurrence_not_found(recurrence_id)
     logger.info(f"Meeting recurrence updated successfully: {result}")
     return result
 
@@ -91,10 +94,9 @@ async def delete_recurrence(
     service: RecurrenceService = Depends(get_recurrence_service),
 ) -> None:
     logger.info(f"Deleting meeting recurrence with ID: {recurrence_id}")
-    success = await service.delete(recurrence_id)
-    if not success:
-        logger.warning(f"Meeting recurrence with ID {recurrence_id} not found")
-        raise NotFoundError(detail="Meeting recurrence not found")
+    result = await service.delete(recurrence_id)
+    if not result:
+        recurrence_not_found(recurrence_id)
 
 
 # Get the next meeting for a recurrence
