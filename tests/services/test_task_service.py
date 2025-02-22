@@ -28,7 +28,7 @@ async def test_update_task_service(task_service):
 
     update_data = TaskUpdate(title="Updated Test Task")
     updated_task = await task_service.update(created_task.id, update_data)
-    assert updated_task.title == updated_task.title
+    assert updated_task.title == update_data.title
 
 
 @pytest.mark.asyncio

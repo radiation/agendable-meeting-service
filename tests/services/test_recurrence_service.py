@@ -28,15 +28,15 @@ async def test_update_recurrence_service(recurrence_service):
     recurrence_create_factory = RecurrenceCreateFactory.build()
     created_recurrence = await recurrence_service.create(recurrence_create_factory)
 
-    updated_recurrence = RecurrenceUpdate(
+    update_data = RecurrenceUpdate(
         title="Updated Test Recurrence", rrule="FREQ=WEEKLY;INTERVAL=2"
     )
 
     updated_recurrence = await recurrence_service.update(
-        created_recurrence.id, updated_recurrence
+        created_recurrence.id, update_data
     )
-    assert updated_recurrence.title == updated_recurrence.title
-    assert updated_recurrence.rrule == updated_recurrence.rrule
+    assert updated_recurrence.title == update_data.title
+    assert updated_recurrence.rrule == update_data.rrule
 
 
 @pytest.mark.asyncio

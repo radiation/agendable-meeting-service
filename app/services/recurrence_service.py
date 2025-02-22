@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 
 from dateutil.rrule import rrulestr
 
@@ -15,7 +16,7 @@ class RecurrenceService(BaseService[Recurrence, RecurrenceCreate, RecurrenceUpda
 
     async def get_next_meeting_date(
         self, recurrence_id: int, after_date: datetime = datetime.now()
-    ) -> datetime:
+    ) -> Union[datetime, None]:
         logger.info(f"Fetching next meeting date for recurrence ID: {recurrence_id}")
         recurrence = await self.repo.get_by_id(recurrence_id)
         if not recurrence:

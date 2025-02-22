@@ -31,8 +31,8 @@ async def test_update_meeting_service(meeting_service):
     update_data = MeetingUpdate(title="Updated Test Meeting", duration=120)
 
     updated_meeting = await meeting_service.update(created_meeting.id, update_data)
-    assert updated_meeting.title == updated_meeting.title
-    assert updated_meeting.duration == updated_meeting.duration
+    assert updated_meeting.title == update_data.title
+    assert updated_meeting.duration == update_data.duration
 
 
 @pytest.mark.asyncio
