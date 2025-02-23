@@ -4,6 +4,9 @@ import sys
 from dotenv import load_dotenv
 from loguru import logger
 
+__all__ = ["logger"]
+
+
 # Load environment variables
 load_dotenv()
 

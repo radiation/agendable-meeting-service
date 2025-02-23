@@ -2,9 +2,11 @@ import asyncio
 from builtins import anext
 from contextlib import asynccontextmanager
 import os
+from typing import Any, AsyncIterator
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from redis.asyncio import Redis
 
 from app.api.routes import meeting_routes, recurrence_routes, task_routes, user_routes
 from app.core.dependencies import (
@@ -28,7 +30,7 @@ load_dotenv()
 logger.info("Starting application...")
 
 
-async def test_redis_connection(redis_client):
+async def test_redis_connection(redis_client: Redis[Any]) -> None:
     try:
         pong = await redis_client.ping()
         if pong:
@@ -39,7 +41,7 @@ async def test_redis_connection(redis_client):
 
 
 @asynccontextmanager
-async def lifespan(fastapi_app: FastAPI):
+async def lifespan(fastapi_app: FastAPI) -> AsyncIterator[None]:
     logger.info("Lifespan startup")
 
     # Resolve database session manually
@@ -96,5 +98,5 @@ app.include_router(
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
     return {"message": "Welcome to the Meeting Service API"}
