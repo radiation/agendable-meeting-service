@@ -18,6 +18,13 @@ repos:
     hooks:
     -   id: isort
 
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+    -   id: mypy
+        args: ["--config-file=mypy.ini"]
+
+
 # Disable pylint checks:
 # C0103 (invalid-name)
 # C0114 (missing-module-docstring)
