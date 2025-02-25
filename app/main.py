@@ -2,7 +2,7 @@ import asyncio
 from builtins import anext
 from contextlib import asynccontextmanager
 import os
-from typing import Any, AsyncIterator
+from typing import AsyncIterator
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -30,7 +30,8 @@ load_dotenv()
 logger.info("Starting application...")
 
 
-async def test_redis_connection(redis_client: Redis[Any]) -> None:
+# redis-py isn't statically typed, so we skip mypy checks
+async def test_redis_connection(redis_client: Redis) -> None:  # type: ignore
     try:
         pong = await redis_client.ping()
         if pong:
