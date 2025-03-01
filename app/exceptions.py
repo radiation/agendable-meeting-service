@@ -1,10 +1,12 @@
 import functools
-from typing import Awaitable, Union
+from typing import Any, Awaitable, Callable, TypeVar, Union
 
 from fastapi import Request
 from fastapi.responses import JSONResponse, Response
 
 from app.core.logging_config import logger
+
+T = TypeVar("T", bound=Callable[..., Awaitable[Any]])
 
 
 # Custom Exceptions
@@ -30,7 +32,7 @@ class ForbiddenError(Exception):
 
 
 # Decorators
-def handle_service_exceptions(func):
+def handle_service_exceptions(func: T) -> T:
     """Decorator to handle exceptions while preserving FastAPI dependencies."""
 
     @functools.wraps(func)

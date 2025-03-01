@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.logging_config import logger
-from app.db.models.relationships import meeting_tasks
+from app.db.models.relationships import meeting_tasks, task_assignees
 from app.db.models.task import Task
 from app.db.repositories import BaseRepository
 
@@ -67,3 +67,27 @@ class TaskRepository(BaseRepository[Task]):
             logger.error(f"Error reassigning tasks: {e}")
             await self.db.rollback()
             raise
+
+    async def get_tasks_by_meeting(self, meeting_id: int) -> list[Task]:
+        logger.info(f"Fetching tasks for meeting ID {meeting_id}")
+        stmt = (
+            select(self.model)
+            .join(meeting_tasks, meeting_tasks.c.task_id == self.model.id)
+            .where(meeting_tasks.c.meeting_id == meeting_id)
+        )
+        result = await self.db.execute(stmt)
+        tasks = list(result.scalars().all())
+        logger.info(f"Retrieved {len(tasks)} tasks for meeting ID {meeting_id}")
+        return tasks
+
+    async def get_tasks_by_user(self, user_id: int) -> list[Task]:
+        logger.info(f"Fetching tasks assigned to user with ID {user_id}")
+        stmt = (
+            select(self.model)
+            .join(task_assignees, task_assignees.c.task_id == self.model.id)
+            .where(task_assignees.c.user_id == user_id)
+        )
+        result = await self.db.execute(stmt)
+        tasks = list(result.scalars().all())
+        logger.info(f"Retrieved {len(tasks)} tasks for user ID {user_id}")
+        return tasks

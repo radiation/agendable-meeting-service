@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends
 
 from app.core.decorators import log_execution_time
@@ -17,7 +19,7 @@ async def create_task(
     task: TaskCreate, service: TaskService = Depends(get_task_service)
 ) -> TaskRetrieve:
     logger.info(f"Creating task with data: {task.model_dump()}")
-    return await service.create(task)
+    return TaskRetrieve.model_validate(await service.create(task))
 
 
 @router.get("/", response_model=list[TaskRetrieve])
@@ -28,7 +30,7 @@ async def get_tasks(
     logger.info("Fetching all tasks assigned to no specific assignee.")
     result = await service.get_by_field(field_name="assignee_id", value=None)
     logger.info(f"Retrieved {len(result)} tasks.")
-    return result
+    return [TaskRetrieve.model_validate(task) for task in result]
 
 
 @router.get("/{task_id}", response_model=TaskRetrieve)
@@ -42,7 +44,7 @@ async def get_task(
         logger.warning(f"Task with ID {task_id} not found")
         raise NotFoundError(f"Task with ID {task_id} not found")
     logger.info(f"Task retrieved: {result}")
-    return result
+    return TaskRetrieve.model_validate(result)
 
 
 @router.put("/{task_id}", response_model=TaskRetrieve)
@@ -58,12 +60,14 @@ async def update_task(
         logger.warning(f"Task with ID {task_id} not found")
         raise NotFoundError(f"Task with ID {task_id} not found")
     logger.info(f"Task updated successfully: {result}")
-    return result
+    return TaskRetrieve.model_validate(result)
 
 
 @router.delete("/{task_id}", status_code=204)
 @log_execution_time
-async def delete_task(task_id: int, service: TaskService = Depends(get_task_service)):
+async def delete_task(
+    task_id: int, service: TaskService = Depends(get_task_service)
+) -> None:
     logger.info(f"Deleting task with ID: {task_id}")
     success = await service.delete(task_id)
     if not success:
@@ -75,12 +79,12 @@ async def delete_task(task_id: int, service: TaskService = Depends(get_task_serv
 @router.get("/user/{user_id}", response_model=list[TaskRetrieve])
 @log_execution_time
 async def get_tasks_by_user(
-    user_id: int, service: TaskService = Depends(get_task_service)
+    user_id: UUID, service: TaskService = Depends(get_task_service)
 ) -> list[TaskRetrieve]:
     logger.info(f"Fetching tasks assigned to user with ID: {user_id}")
     result = await service.get_tasks_by_user(user_id)
     logger.info(f"Retrieved {len(result)} tasks for user ID: {user_id}")
-    return result
+    return [TaskRetrieve.model_validate(task) for task in result]
 
 
 @router.post("/{task_id}/complete", response_model=TaskRetrieve)
@@ -94,4 +98,4 @@ async def complete_task(
         logger.warning(f"Task with ID {task_id} not found")
         raise NotFoundError(f"Task with ID {task_id} not found")
     logger.info(f"Task with ID {task_id} marked as complete.")
-    return result
+    return TaskRetrieve.model_validate(result)

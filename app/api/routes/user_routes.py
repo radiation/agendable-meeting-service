@@ -19,7 +19,7 @@ async def create_user(
     user: UserCreate, service: UserService = Depends(get_user_service)
 ) -> UserRetrieve:
     logger.info(f"Creating user with data: {user.model_dump()}")
-    return await service.create(user)
+    return UserRetrieve.model_validate(await service.create(user))
 
 
 @router.get("/", response_model=list[UserRetrieve])
@@ -30,7 +30,7 @@ async def get_users(
     logger.info("Fetching all users.")
     result = await service.get_all()
     logger.info(f"Retrieved {len(result)} users.")
-    return result
+    return [UserRetrieve.model_validate(user) for user in result]
 
 
 @router.get("/{user_id}", response_model=UserRetrieve)
@@ -44,7 +44,7 @@ async def get_user(
         logger.warning(f"User with ID {user_id} not found")
         raise NotFoundError(f"User with ID {user_id} not found")
     logger.info(f"User retrieved: {result}")
-    return result
+    return UserRetrieve.model_validate(result)
 
 
 @router.get("/by-email/{email}", response_model=UserRetrieve)
@@ -58,7 +58,7 @@ async def get_user_by_email(
         logger.warning(f"User with email {email} not found")
         raise NotFoundError(f"User with email {email} not found")
     logger.info(f"User retrieved: {result}")
-    return result[0]
+    return UserRetrieve.model_validate(result[0])
 
 
 @router.put("/{user_id}", response_model=UserRetrieve)
@@ -74,12 +74,14 @@ async def update_user(
         logger.warning(f"User with ID {user_id} not found")
         raise NotFoundError(f"User with ID {user_id} not found")
     logger.info(f"User updated successfully: {result}")
-    return result
+    return UserRetrieve.model_validate(result)
 
 
 @router.delete("/{user_id}", status_code=204)
 @log_execution_time
-async def delete_user(user_id: UUID, service: UserService = Depends(get_user_service)):
+async def delete_user(
+    user_id: UUID, service: UserService = Depends(get_user_service)
+) -> None:
     logger.info(f"Deleting user with ID: {user_id}")
     success = await service.delete(user_id)
     if not success:
