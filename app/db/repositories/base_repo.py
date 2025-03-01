@@ -1,12 +1,13 @@
-from typing import Any, Generic, Type, TypeVar, Union
+from typing import Any, Generic, Optional, Type, TypeVar, Union, cast
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.logging_config import logger
+from app.db.models.base import Base
 
-ModelType = TypeVar("ModelType")
+ModelType = TypeVar("ModelType", bound=Base)
 
 
 class BaseRepository(Generic[ModelType]):
@@ -14,7 +15,7 @@ class BaseRepository(Generic[ModelType]):
         self.model = model
         self.db = db
 
-    async def create(self, db_obj: ModelType) -> ModelType:
+    async def create(self, db_obj: ModelType) -> Optional[ModelType]:
         logger.debug(f"Creating {self.model.__name__} with data: {db_obj}")
         self.db.add(db_obj)
         try:
@@ -22,7 +23,11 @@ class BaseRepository(Generic[ModelType]):
             await self.db.refresh(db_obj)
             stmt = select(self.model).filter(self.model.id == db_obj.id)
             result = await self.db.execute(stmt)
-            db_obj = result.scalars().first()
+            db_obj = cast(ModelType, result.scalars().first())
+            if db_obj is None:
+                raise ValueError(
+                    f"Failed to retrieve {self.model.__name__} after creation."
+                )
             logger.debug(
                 f"{self.model.__name__} created successfully with ID: {db_obj.id}"
             )
@@ -31,7 +36,7 @@ class BaseRepository(Generic[ModelType]):
             logger.exception(f"Error creating {self.model.__name__}: {e}")
             raise
 
-    async def get_by_id(self, object_id: Union[int, UUID]) -> ModelType:
+    async def get_by_id(self, object_id: Union[int, UUID]) -> Optional[ModelType]:
         logger.debug(f"Fetching {self.model.__name__} with ID: {object_id}")
 
         if isinstance(object_id, UUID):
@@ -63,7 +68,7 @@ class BaseRepository(Generic[ModelType]):
         stmt = select(self.model).offset(skip).limit(limit)
         try:
             result = await self.db.execute(stmt)
-            entities = result.unique().scalars().all()
+            entities = list(result.unique().scalars().all())
             logger.debug(f"Retrieved {len(entities)} {self.model.__name__}(s)")
             return entities
         except Exception as e:
@@ -76,7 +81,7 @@ class BaseRepository(Generic[ModelType]):
 
         try:
             result = await self.db.execute(stmt)
-            entities = result.unique().scalars().all()
+            entities = list(result.unique().scalars().all())
             logger.debug(
                 f"Retrieved {len(entities)} {self.model.__name__}(s) \
                     matching {field_name}={value}"

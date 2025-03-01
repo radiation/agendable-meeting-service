@@ -39,3 +39,20 @@ meeting_users = Table(
         "created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     ),
 )
+
+task_assignees = Table(
+    "task_assignees",
+    Base.metadata,
+    Column(
+        "task_id", Integer, ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True
+    ),
+    Column(
+        "user_id",
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
+    ),
+)

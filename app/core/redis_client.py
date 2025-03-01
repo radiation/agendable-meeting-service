@@ -4,7 +4,7 @@ from redis.asyncio import Redis
 
 
 class RedisClient:
-    def __init__(self):
+    def __init__(self) -> None:
         # Load Redis configuration from environment variables
         self.redis_host = os.getenv("REDIS_HOST", "localhost")
         self.redis_port = int(os.getenv("REDIS_PORT", "6379"))
@@ -20,9 +20,9 @@ class RedisClient:
             decode_responses=True,
         )
 
-    def get_client(self):
+    def get_client(self) -> Redis:
         return self.client
 
 
 # Singleton instance for Redis client
-redis_client = RedisClient().get_client()
+redis_client: Redis = RedisClient().get_client()

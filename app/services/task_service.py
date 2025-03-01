@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.core.logging_config import logger
 from app.db.models.task import Task
 from app.db.repositories.task_repo import TaskRepository
@@ -24,7 +26,7 @@ class TaskService(BaseService[Task, TaskCreate, TaskUpdate]):
 
     async def reassign_tasks_to_meeting(
         self, source_meeting_id: int, target_meeting_id: int
-    ):
+    ) -> None:
         logger.info(
             f"Reassigning tasks from M:{source_meeting_id} to M:{target_meeting_id}"
         )
@@ -41,3 +43,15 @@ class TaskService(BaseService[Task, TaskCreate, TaskUpdate]):
         logger.info(
             f"Reassigned {len(task_ids)} tasks to meeting ID {target_meeting_id}"
         )
+
+    async def get_tasks_by_meeting(self, meeting_id: int) -> list[TaskRetrieve]:
+        logger.info(f"Fetching tasks for meeting ID {meeting_id}")
+        tasks = await self.repo.get_tasks_by_meeting(meeting_id)
+        logger.info(f"Retrieved {len(tasks)} tasks for meeting ID {meeting_id}")
+        return [TaskRetrieve.model_validate(task) for task in tasks]
+
+    async def get_tasks_by_user(self, assignee_id: UUID) -> list[TaskRetrieve]:
+        logger.info(f"Fetching tasks for user ID {assignee_id}")
+        tasks = await self.repo.get_tasks_by_user(assignee_id)
+        logger.info(f"Retrieved {len(tasks)} tasks for user ID {assignee_id}")
+        return [TaskRetrieve.model_validate(task) for task in tasks]

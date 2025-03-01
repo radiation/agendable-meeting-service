@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Any, Optional
 from uuid import UUID
 
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
@@ -18,16 +20,12 @@ class MeetingRepository(BaseRepository[Meeting]):
         super().__init__(Meeting, db)
 
     async def filter_meetings(
-        self, filters: dict, after_date: datetime = None, skip: int = 0, limit: int = 10
+        self,
+        filters: dict[str, Any],
+        after_date: datetime,
+        skip: int = 0,
+        limit: int = 10,
     ) -> list[Meeting]:
-        """
-        General-purpose meeting filter with optional date and pagination.
-        :param filters: Dictionary of field-value pairs for filtering.
-        :param after_date: Optional datetime to filter meetings after this date.
-        :param skip: Number of records to skip.
-        :param limit: Maximum number of records to return.
-        :return: List of filtered Meeting objects.
-        """
         logger.debug(
             f"Filtering meetings with filters={filters}, after_date={after_date}"
         )
@@ -42,17 +40,12 @@ class MeetingRepository(BaseRepository[Meeting]):
         stmt = stmt.order_by(self.model.start_date).offset(skip).limit(limit)
 
         result = await self.db.execute(stmt)
-        meetings = result.scalars().all()
+        meetings = list(result.scalars().all())
 
         logger.debug(f"Retrieved {len(meetings)} meetings with filters={filters}")
         return meetings
 
-    async def get_recurrence_by_id(self, recurrence_id: int) -> Recurrence:
-        """
-        Fetch a recurrence by its ID.
-        :param recurrence_id: ID of the recurrence.
-        :return: Recurrence object.
-        """
+    async def get_recurrence_by_id(self, recurrence_id: int) -> Optional[Recurrence]:
         logger.debug(f"Fetching recurrence with ID: {recurrence_id}")
 
         stmt = select(Recurrence).where(Recurrence.id == recurrence_id)
@@ -69,31 +62,17 @@ class MeetingRepository(BaseRepository[Meeting]):
     async def get_future_meetings(
         self, recurrence_id: int, after_date: datetime, skip: int = 0, limit: int = 10
     ) -> list[Meeting]:
-        """
-        Fetch future meetings for a recurrence.
-        :param recurrence_id: ID of the recurrence.
-        :param after_date: Datetime to filter meetings occurring after this date.
-        :param skip: Number of records to skip.
-        :param limit: Maximum number of records to return.
-        :return: List of Meeting objects.
-        """
-        return await self.filter_meetings(
+        meetings = await self.filter_meetings(
             filters={"recurrence_id": recurrence_id},
             after_date=after_date,
             skip=skip,
             limit=limit,
         )
+        return list(meetings)
 
     async def get_meetings_by_user_id(
         self, user_id: UUID, skip: int = 0, limit: int = 10
     ) -> list[Meeting]:
-        """
-        Fetch meetings for a user.
-        :param user_id: UUID of the user.
-        :param skip: Number of records to skip.
-        :param limit: Maximum number of records to return.
-        :return: List of Meeting objects.
-        """
         logger.debug(
             f"Fetching meetings for user ID: {user_id} with skip={skip}, limit={limit}"
         )
@@ -108,16 +87,11 @@ class MeetingRepository(BaseRepository[Meeting]):
             .limit(limit)
         )
         result = await self.db.execute(stmt)
-        meetings = result.scalars().unique().all()
+        meetings = list(result.scalars().unique().all())
         logger.debug(f"Retrieved {len(meetings)} meetings for user ID {user_id}")
         return meetings
 
-    async def add_users_to_meeting(self, meeting_id: int, user_ids: list[UUID]):
-        """
-        Add multiple users to a meeting.
-        :param meeting_id: ID of the meeting.
-        :param user_ids: List of user IDs to add.
-        """
+    async def add_users_to_meeting(self, meeting_id: int, user_ids: list[UUID]) -> None:
         logger.info(f"Adding users to meeting ID {meeting_id}: {user_ids}")
 
         # Fetch existing user-meeting relationships in bulk
@@ -126,7 +100,7 @@ class MeetingRepository(BaseRepository[Meeting]):
             meeting_users.c.user_id.in_(user_ids),
         )
         result = await self.db.execute(stmt)
-        existing_users = {row["user_id"] for row in result}
+        existing_users = {user_id for (user_id,) in result}
 
         # Determine which users need to be added
         new_user_ids = [
@@ -153,12 +127,7 @@ class MeetingRepository(BaseRepository[Meeting]):
             logger.exception(f"Error adding users to meeting ID {meeting_id}: {e}")
             raise
 
-    async def get_users_from_meeting(self, meeting_id: int):
-        """
-        Fetch users associated with a meeting.
-        :param meeting_id: ID of the meeting.
-        :return: List of User objects.
-        """
+    async def get_users_from_meeting(self, meeting_id: int) -> list[User]:
         logger.info(f"Fetching users for meeting ID {meeting_id}")
 
         try:
@@ -170,23 +139,20 @@ class MeetingRepository(BaseRepository[Meeting]):
             )
 
             result = await self.db.execute(stmt)
-            users = result.scalars().all()
+            users = list(result.scalars().all())
             logger.info(f"Found {len(users)} users for meeting ID {meeting_id}")
             return users
         except Exception as e:
             logger.exception(f"Error fetching users for meeting ID {meeting_id}: {e}")
             raise
 
-    async def complete_meeting(self, meeting_id: int) -> Meeting:
-        """
-        Mark a meeting as complete and move any incomplete tasks to the next meeting.
-        :param meeting_id: ID of the meeting.
-        :return: Updated Meeting object.
-        """
+    async def complete_meeting(self, meeting_id: int) -> Optional[Meeting]:
         logger.debug(f"Marking meeting with ID {meeting_id} as complete")
         meeting = await self.get_by_id(meeting_id)
         if meeting:
-            meeting.completed = True
+            await self.db.execute(
+                update(Meeting).where(Meeting.id == meeting.id).values(completed=True)
+            )
             await self.db.commit()
             await self.db.refresh(meeting)
             logger.debug(f"Meeting with ID {meeting_id} marked as complete")
@@ -195,15 +161,8 @@ class MeetingRepository(BaseRepository[Meeting]):
         return meeting
 
     async def batch_create_with_recurrence(
-        self, recurrence_id: int, base_meeting: dict, dates: list[datetime]
-    ):
-        """
-        Batch create meetings for a recurrence.
-        :param recurrence_id: ID of the recurrence.
-        :param base_meeting: Dictionary of meeting attributes (e.g., duration, title).
-        :param dates: List of datetime objects for meeting start dates.
-        :return: List of created Meeting objects.
-        """
+        self, recurrence_id: int, base_meeting: dict[str, Any], dates: list[datetime]
+    ) -> dict[str, list[Meeting] | list[datetime]]:
         if not dates:
             logger.warning("No dates provided for batch creation.")
             raise ValueError("Dates list cannot be empty.")

@@ -1,9 +1,12 @@
 import functools
+from typing import Any, Awaitable, Callable, TypeVar, Union
 
 from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from app.core.logging_config import logger
+
+T = TypeVar("T", bound=Callable[..., Awaitable[Any]])
 
 
 # Custom Exceptions
@@ -29,7 +32,7 @@ class ForbiddenError(Exception):
 
 
 # Decorators
-def handle_service_exceptions(func):
+def handle_service_exceptions(func: T) -> T:
     """Decorator to handle exceptions while preserving FastAPI dependencies."""
 
     @functools.wraps(func)
@@ -47,28 +50,36 @@ def handle_service_exceptions(func):
 
 
 # Exception Handlers
-async def forbidden_exception_handler(_request: Request, exc: ForbiddenError):
+def forbidden_exception_handler(
+    _request: Request, exc: Exception
+) -> Union[Response, Awaitable[Response]]:
     return JSONResponse(
         status_code=403,
         content={"detail": exc.detail},
     )
 
 
-async def not_found_exception_handler(_request: Request, exc: NotFoundError):
+def not_found_exception_handler(
+    _request: Request, exc: Exception
+) -> Union[Response, Awaitable[Response]]:
     return JSONResponse(
         status_code=404,
         content={"detail": exc.detail},
     )
 
 
-async def validation_exception_handler(_request: Request, exc: ValidationError):
+def validation_exception_handler(
+    _request: Request, exc: Exception
+) -> Union[Response, Awaitable[Response]]:
     return JSONResponse(
         status_code=400,
         content={"detail": exc.detail},
     )
 
 
-async def generic_exception_handler(_request: Request, exc: Exception):
+def generic_exception_handler(
+    _request: Request, exc: Exception
+) -> Union[Response, Awaitable[Response]]:
     return JSONResponse(
         status_code=500,
         content={"detail": exc or "An unexpected error occurred"},

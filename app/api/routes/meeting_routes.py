@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends
 
 from app.core.decorators import log_execution_time
@@ -10,7 +12,7 @@ from app.schemas.meeting_schemas import (
     MeetingRetrieve,
     MeetingUpdate,
 )
-from app.schemas.user_schemas import AddUsersRequest
+from app.schemas.user_schemas import AddUsersRequest, UserRetrieve
 from app.services.meeting_service import MeetingService
 
 router = APIRouter()
@@ -24,7 +26,7 @@ async def create_meeting(
     service: MeetingService = Depends(get_meeting_service),
 ) -> MeetingRetrieve:
     logger.info(f"Creating meeting with data: {meeting.model_dump()}")
-    return await service.create(meeting)
+    return MeetingRetrieve.model_validate(await service.create(meeting))
 
 
 @router.get("/", response_model=list[MeetingRetrieve])
@@ -37,7 +39,7 @@ async def get_meetings(
     logger.info(f"Fetching all meetings with skip={skip} and limit={limit}")
     result = await service.get_all(skip, limit)
     logger.info(f"Retrieved {len(result)} meetings.")
-    return result
+    return [MeetingRetrieve.model_validate(meeting) for meeting in result]
 
 
 @router.get("/{meeting_id}", response_model=MeetingRetrieve)
@@ -52,7 +54,7 @@ async def get_meeting(
         logger.warning(f"Meeting with ID {meeting_id} not found")
         raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
     logger.info(f"Meeting retrieved: {meeting}")
-    return meeting
+    return MeetingRetrieve.model_validate(meeting)
 
 
 @router.put("/{meeting_id}", response_model=MeetingRetrieve)
@@ -70,14 +72,14 @@ async def update_meeting(
         logger.warning(f"Meeting with ID {meeting_id} not found")
         raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
     logger.info(f"Meeting updated successfully: {updated_meeting}")
-    return updated_meeting
+    return MeetingRetrieve.model_validate(updated_meeting)
 
 
 @router.delete("/{meeting_id}", status_code=204)
 @log_execution_time
 async def delete_meeting(
     meeting_id: int, service: MeetingService = Depends(get_meeting_service)
-):
+) -> None:
     logger.info(f"Deleting meeting with ID: {meeting_id}")
     success = await service.delete(meeting_id)
     if not success:
@@ -100,7 +102,7 @@ async def complete_meeting(
             detail=f"Meeting with ID {meeting_id} not found or already completed"
         )
     logger.info(f"Meeting completed successfully: {completed_meeting}")
-    return completed_meeting
+    return MeetingRetrieve.model_validate(completed_meeting)
 
 
 @router.post(
@@ -123,7 +125,7 @@ async def add_recurrence(
         logger.warning(f"Meeting with ID {meeting_id} not found")
         raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
     logger.info(f"Recurrence added successfully to meeting: {meeting}")
-    return meeting
+    return MeetingRetrieve.model_validate(meeting)
 
 
 @router.get("/{meeting_id}/next/", response_model=MeetingRetrieve)
@@ -138,7 +140,7 @@ async def next_meeting(
         logger.warning(f"Next meeting after ID {meeting_id} not found")
         raise NotFoundError(detail=f"Meeting with ID {meeting_id} not found")
     logger.info(f"Next meeting retrieved: {next_meeting_instance}")
-    return next_meeting_instance
+    return MeetingRetrieve.model_validate(next_meeting_instance)
 
 
 @router.post("/{meeting_id}/users/")
@@ -147,7 +149,7 @@ async def add_users_to_meeting(
     meeting_id: int,
     request: AddUsersRequest,
     meeting_service: MeetingService = Depends(get_meeting_service),
-):
+) -> dict[str, str]:
     logger.info(request.user_ids)
     await meeting_service.add_users(meeting_id, request.user_ids)
     return {"message": "Users added to meeting successfully"}
@@ -155,12 +157,13 @@ async def add_users_to_meeting(
 
 @router.get("/{meeting_id}/users/")
 @log_execution_time
-async def get_users_from_meeting(
+async def get_meeting_attendees(
     meeting_id: int,
     meeting_service: MeetingService = Depends(get_meeting_service),
-):
+) -> list[UserRetrieve]:
+    logger.info(f"Fetching users for meeting with ID: {meeting_id}")
     users = await meeting_service.get_users(meeting_id)
-    return users
+    return [UserRetrieve.model_validate(user) for user in users]
 
 
 @router.post("/recurring-meetings", response_model=list[MeetingRetrieve])
@@ -169,22 +172,22 @@ async def create_recurring_meetings(
     recurrence_id: int,
     meeting_data: MeetingCreateBatch,
     service: MeetingService = Depends(get_meeting_service),
-):
+) -> list[MeetingRetrieve]:
     logger.info(f"Creating recurring meetings with data: {meeting_data.model_dump()}")
     result = await service.create_recurring_meetings(
         recurrence_id, meeting_data.base_meeting, meeting_data.dates
     )
     logger.info("Recurring meetings created successfully")
-    return result
+    return [MeetingRetrieve.model_validate(meeting) for meeting in result]
 
 
 @router.get("/by_user/{user_id}", response_model=list[MeetingRetrieve])
 @log_execution_time
 async def get_meetings_by_user(
-    user_id: int,
+    user_id: UUID,
     service: MeetingService = Depends(get_meeting_service),
 ) -> list[MeetingRetrieve]:
     logger.info(f"Fetching meetings for user with ID: {user_id}")
     result = await service.get_meetings_by_user_id(user_id)
     logger.info(f"Retrieved {len(result)} meetings for user ID: {user_id}")
-    return result
+    return [MeetingRetrieve.model_validate(meeting) for meeting in result]

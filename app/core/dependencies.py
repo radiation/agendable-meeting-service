@@ -1,4 +1,5 @@
 from fastapi import Depends
+from redis import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.redis_client import redis_client
@@ -12,8 +13,10 @@ from app.services.recurrence_service import RecurrenceService
 from app.services.task_service import TaskService
 from app.services.user_service import UserService
 
+__all__ = ["get_db", "get_redis_client", "get_task_service", "get_user_service"]
 
-def get_redis_client():
+
+def get_redis_client() -> Redis:
     return redis_client
 
 

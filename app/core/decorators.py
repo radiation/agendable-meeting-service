@@ -1,11 +1,16 @@
 from functools import wraps
 import time
+from typing import Any, Awaitable, Callable, TypeVar
 
 from loguru import logger
 
+T = TypeVar("T", bound=Callable[..., Awaitable[Any]])
+
 
 # Utility function to log execution time
-def log_execution_time(func):
+def log_execution_time(func: T) -> T:
+    """Decorator to log the execution time of a function."""
+
     @wraps(func)  # This preserves the original function's signature
     async def wrapper(*args, **kwargs):
         start_time = time.time()

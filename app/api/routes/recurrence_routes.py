@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends
 
 from app.core.decorators import log_execution_time
@@ -29,7 +31,7 @@ async def create_recurrence(
     service: RecurrenceService = Depends(get_recurrence_service),
 ) -> RecurrenceRetrieve:
     logger.info(f"Creating meeting recurrence with data: {recurrence.model_dump()}")
-    return await service.create(recurrence)
+    return RecurrenceRetrieve.model_validate(await service.create(recurrence))
 
 
 # List all meeting recurrences
@@ -43,7 +45,7 @@ async def get_recurrences(
     logger.info(f"Fetching all meeting recurrences with skip={skip} and limit={limit}")
     result = await service.get_all(skip=skip, limit=limit)
     logger.info(f"Retrieved {len(result)} meeting recurrences.")
-    return result
+    return [RecurrenceRetrieve.model_validate(rec) for rec in result]
 
 
 # Get a meeting recurrence by ID
@@ -61,7 +63,7 @@ async def get_recurrence(
     if not result:
         recurrence_not_found(recurrence_id)
     logger.info(f"Meeting recurrence retrieved: {result}")
-    return result
+    return RecurrenceRetrieve.model_validate(result)
 
 
 # Update an existing meeting recurrence
@@ -83,7 +85,7 @@ async def update_recurrence(
     if not result:
         recurrence_not_found(recurrence_id)
     logger.info(f"Meeting recurrence updated successfully: {result}")
-    return result
+    return RecurrenceRetrieve.model_validate(result)
 
 
 # Delete a meeting recurrence
@@ -100,12 +102,12 @@ async def delete_recurrence(
 
 
 # Get the next meeting for a recurrence
-@router.get("/next-meeting/{recurrence_id}", response_model=MeetingRetrieve)
+@router.get("/next-meeting-date/{recurrence_id}", response_model=MeetingRetrieve)
 @log_execution_time
-async def next_meeting(
+async def get_next_meeting_date(
     recurrence_id: int,
     service: RecurrenceService = Depends(get_recurrence_service),
-) -> MeetingRetrieve:
+) -> datetime:
     logger.info(f"Fetching next meeting for recurrence with ID: {recurrence_id}")
     next_meeting_date = await service.get_next_meeting_date(recurrence_id)
     if not next_meeting_date:
